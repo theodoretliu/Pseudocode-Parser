@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}
+  About
+{% endblock %}
+
+{% block main %}
+  <script>
+    $("#nav-home").attr("class", "");
+    $("#nav-about").attr("class", "active");
+    $("#nav-contact").attr("class", "");
+  </script>
+  <div class="container">
+    <div class="text-left">
+      <h3>Goal: Make Coding Simpler</h3>
+      <p>Our goal is simple: make coding accessible for all. No more getting bogged down by syntax. No more messing with indentation. Simply say what you mean to say, and see that code generated right in front of you. Not happy with the results? Change the code and push a button. The revised code will be sent to us so that our algorithm can improve in the future. Thank you for being a part of the journey!<p>
+    </div>
+  </div>
+{% endblock %}

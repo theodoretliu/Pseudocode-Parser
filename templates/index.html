@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block title %}
+  Index
+{% endblock %}
+
+{% block main %}
+  <script>
+    $("#nav-home").attr("class", "active");
+    $("#nav-about").attr("class", "");
+    $("#nav-contact").attr("class", "");
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='codemirror.css'	) }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='monokai.css') }}">
+  <div class="container">
+
+    <form id="user_input">
+      <div class="input-group input-group-lg">
+        <input class="form-control input-lg" type="text" id="parse-input" placeholder="Enter your pseudocode">
+        <span class="input-group-btn">
+          <button type="submit" class="btn btn-default btn-lg" id="parse-button">Submit</button>
+        </span>
+      </div>
+    </form>
+    <br>
+    <textarea id="results" class="CodeMirror" rows="10">"Your code will appear here"</textarea>
+  </div>
+  <div class="container" id="feedback" style="display:none">
+    <div class="text-right" style="padding-top:12px">
+      Is the code correct?
+      <button class="btn btn-success" id="feedback-yes" style="margin:0px 12px">Yes</button>
+      <button class="btn btn-danger" id="feedback-no">No</button>
+    </div>
+  </div>
+  <div class="container" id="feedback-response" style="display:none">
+    <div class="text-right" style="padding-top:20px"></div>
+  </div>
+  <script src="{{ url_for('static', filename='codemirror.js') }}"></script>
+  <script src="{{ url_for('static', filename='python.js') }}"></script>
+  <script>
+    var editor = CodeMirror.fromTextArea(results, {
+      lineNumbers: true,
+      mode: "python",
+      theme: "monokai",
+    });
+
+    $("#user_input").on("submit", function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: "{{ url_for('parse') }}",
+        data: {
+          input: $("#parse-input").val(),
+        },
+        success: function (result) {
+          editor.getDoc().setValue(result);
+        }
+      });
+      $("#feedback").css("display", "block");
+      $("#feedback-response").css("display", "none");
+    });
+
+    $("#feedback-yes").on("click", function() {
+      $("#feedback-response > div").html("Awesome! Thanks for your feedback.");
+      $("#feedback-response").css("display", "block");
+      $("#feedback").css("display", "none");
+    });
+
+    $("#feedback-no").on("click", function() {
+      $("#feedback-response > div").html("Sorry about that. Thanks for your feedback.");
+      $("#feedback-response").css("display", "block");
+      $("#feedback").css("display", "none");
+    });
+  </script>
+{% endblock %}
