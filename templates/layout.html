@@ -3,13 +3,13 @@
 <html lang="en">
 
 <head>
-  <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cyborg/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}"/>
 
   <meta charset="utf-8"/>
   <meta content="initial-scale=1, width=device-width" name="viewport"/>
 
-  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='boostrap.min.js') }}"></script>
 
   <script src="{{ url_for('static', filename='codemirror.js') }}"></script>
   <script src="{{ url_for('static', filename='python.js') }}"></script>
