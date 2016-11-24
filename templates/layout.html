@@ -12,6 +12,12 @@
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
+  <script src="{{ url_for('static', filename='codemirror.js') }}"></script>
+  <script src="{{ url_for('static', filename='python.js') }}"></script>
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='codemirror.css'	) }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='monokai.css') }}">
+
   <title>Pseudocode Parser: {% block title %}{% endblock %}</title>
 
 </head>

@@ -10,8 +10,6 @@
     $("#nav-about").attr("class", "");
     $("#nav-contact").attr("class", "");
   </script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='codemirror.css'	) }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='monokai.css') }}">
   <div class="container">
 
     <form id="user_input">
@@ -23,7 +21,15 @@
       </div>
     </form>
     <br>
-    <textarea id="results" class="CodeMirror" rows="10">"Your code will appear here"</textarea>
+    <textarea id="results" class="CodeMirror" rows="10" style="display:none">"Your code will appear here"</textarea>
+    <script>
+      var editor = CodeMirror.fromTextArea(results, {
+        lineNumbers: true,
+        mode: "python",
+        theme: "monokai",
+      });
+      $("#results").css("display:block");
+    </script>
   </div>
   <div class="container" id="feedback" style="display:none">
     <div class="text-right" style="padding-top:12px">
@@ -35,15 +41,9 @@
   <div class="container" id="feedback-response" style="display:none">
     <div class="text-right" style="padding-top:20px"></div>
   </div>
-  <script src="{{ url_for('static', filename='codemirror.js') }}"></script>
-  <script src="{{ url_for('static', filename='python.js') }}"></script>
-  <script>
-    var editor = CodeMirror.fromTextArea(results, {
-      lineNumbers: true,
-      mode: "python",
-      theme: "monokai",
-    });
 
+
+  <script>
     $("#user_input").on("submit", function(e) {
       e.preventDefault();
       $.ajax({
