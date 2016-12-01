@@ -7,15 +7,14 @@ from parser import *
 # configure application
 app = Flask(__name__)
 
-root = Parent()
-current = root
+roots = dict()
+currentS = dict()
 
 @app.route("/")
 def index():
-	global root
-	global current
-	root = Parent()
-	current = root
+	roots[request.remote_addr] = Parent()
+	currents[request.remote_addr] = roots[request.remote_addr]
+
 	return render_template("index.html")
 
 @app.route("/about")
@@ -24,12 +23,10 @@ def about():
 
 @app.route("/parse")
 def parse():
-	global current
-	global root
 	pseudocode = request.args.get("input")
-	current = parse_input(pseudocode, current)
+	currents[request.remote_addr] = parse_input(pseudocode, currents[request.remote_addr])
 
-	return str(root)
+	return str(roots[request.remote_addr])
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
