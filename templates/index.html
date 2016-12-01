@@ -54,6 +54,7 @@
           input: $("#parse-input").val(),
         },
         success: function (result) {
+          $("#parse-input").val("");
           editor.getDoc().setValue(result);
         }
       });

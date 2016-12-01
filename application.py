@@ -1,13 +1,22 @@
 import os
 from flask import Flask, flash, redirect, render_template, request, session, url_for
+from power import *
+from parser import *
 
 
 # configure application
 app = Flask(__name__)
 
+root = Parent()
+current = root
+
 @app.route("/")
 def index():
-    return render_template("index.html")
+	global root
+	global current
+	root = Parent()
+	current = root
+	return render_template("index.html")
 
 @app.route("/about")
 def about():
@@ -15,8 +24,12 @@ def about():
 
 @app.route("/parse")
 def parse():
-	code = request.args.get("input")
-	return code
+	global current
+	global root
+	pseudocode = request.args.get("input")
+	current = parse_input(pseudocode, current)
+
+	return str(root)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
