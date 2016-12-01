@@ -12,8 +12,8 @@ currents = dict()
 
 @app.route("/")
 def index():
-	roots[request.remote_addr] = Parent()
-	currents[request.remote_addr] = roots[request.remote_addr]
+	roots[request.environ['REMOTE_ADDR']] = Parent()
+	currents[request.environ['REMOTE_ADDR']] = roots[request.environ['REMOTE_ADDR']]
 
 	return render_template("index.html")
 
@@ -24,9 +24,9 @@ def about():
 @app.route("/parse")
 def parse():
 	pseudocode = request.args.get("input")
-	currents[request.remote_addr] = parse_input(pseudocode, currents[request.remote_addr])
+	currents[request.environ['REMOTE_ADDR']] = parse_input(pseudocode, currents[request.environ['REMOTE_ADDR']])
 
-	return str(roots[request.remote_addr])
+	return str(roots[request.environ['REMOTE_ADDR']])
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
