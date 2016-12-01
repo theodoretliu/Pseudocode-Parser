@@ -214,7 +214,12 @@ def parse_input(inp, current):
             current.add_arg(Generic(""))
 
     elif command == "else":
-        if words[1].lower() == "if" and (isinstance(current, If) or isinstance(current, Elif)):
+        if len(words) == 1:
+            if isinstance(current, If) or isinstance(current, Elif):
+                current = current.get_parent()
+                current.add_arg(Else())
+                current = current.get_args()[-1]
+        elif words[1].lower() == "if" and (isinstance(current, If) or isinstance(current, Elif)):
             current = current.get_parent()
             current.add_arg(parse_elif(inp))
             current = current.get_args()[-1]

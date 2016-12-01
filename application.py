@@ -8,7 +8,7 @@ from parser import *
 app = Flask(__name__)
 
 roots = dict()
-currentS = dict()
+currents = dict()
 
 @app.route("/")
 def index():
