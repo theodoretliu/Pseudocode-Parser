@@ -1,6 +1,83 @@
 import re
 from power import *
 
+def is_in_quotes(s):
+    return (s[0] == "'" and s[-1] == "'") or (s[0] == "\"" and s[-1] == "\"")
+
+def balanced_delimiters(s):
+    def inv(s):
+        if s == '{': return '}'
+        elif s == '(': return '}'
+        elif s == '[': return ']'
+        elif s == '}': return '{'
+        elif s == ')': return '('
+        elif s == ']': return '['
+        
+    def opener(s):
+        if s == '{' or s == '[' or s == '(':
+            return True
+        return False
+
+    def closer(s):
+        return not opener(s)
+
+    level = 0
+    openers = {}
+    keys = set(('{', '[', '(', ')', ']', '}'))
+    for i in range(len(s)):
+        if s[i] not in keys: continue;
+        if opener(s[i]):
+            if level in openers:
+                openers[level].append(s[i])
+            else:
+                openers[level] = [s[i]]
+            level += 1
+        if closer(s[i]):
+            level -= 1
+            if level not in openers: return False
+            if openers[level].pop(-1) != inv(s[i]):
+                return False
+    for i in openers:
+        if len(openers[i]) != 0:
+            return False
+    return True
+
+
+def extract_parenthesis(s):
+    retval = s
+    parens = []
+
+    count = 0
+    idx1 = idx2 = -1
+    for i in range(len(s)):
+        if s[i] == "(":
+            if idx1 == -1:
+                idx1 = i
+        elif s[i] == ')' and balanced_delimiters(s[:i + 1]):
+            idx2 = i
+            paren = s[idx1 + 1:idx2]
+            retval = retval.replace('(' + paren + ')', 'paren' + str(count), 1)
+            parens.append(paren)
+            count = 1
+            idx1 = -1
+    return retval, parens
+
+def extract_groups(s):
+    retval = s
+    groups = []
+
+    reg = re.compile("(\s|\(|\[)[a-zA-Z0-9_\.\(\)\[\]\s]+((\+|\-|\*|\*{2}|\/|\%|!=|==|>|>=|<|<=|\^|\&|\~|\|)[a-zA-Z0-9_\.\(\)\[\]\s]+)+")
+    count = 0
+    search = reg.search(retval)
+    while bool(search):
+        group = search.group()[1:]
+        retval = retval.replace(group, 'expressiongroup' + str(count), 1)
+        groups.append(group)
+        count += 1
+        search = reg.search(retval)
+
+    return retval, groups
+
 def extract_quotes(s):
     retval = s
     quotes = []
@@ -25,19 +102,51 @@ def is_in_quotes(s):
     return (s[0] == "'" and s[-1] == "'") or (s[0] == "\"" and s[-1] == "\"")
 
 def parse_print(inp):
+    if inp[5] == '(':
+        inp = inp[:5] + " " + inp[5:]
+        if inp[-1] == ')':
+            inp = inp[:6] + inp[7:-1]
+
     inp, quotes = extract_quotes(inp)
-    print("inp: {}".format(inp))
-    print("quotes: {}".format(quotes))
+    inp, parens = extract_parenthesis(inp)
+    inp, groups = extract_groups(inp)
+
     inp = inp.lower().replace('and', '').replace(',', '')
     words = re.split('\s+', inp)
     del words[0]
-    
-    count = 0
+
+    quote_count = 0
+    paren_count = 0
+    group_count = 0
     for i in range(len(words)):
-        if words[i][1:9] == 'variable':
-            words[i] = "'{}'".format(quotes[count])
-            count += 1
-    
+        quote_reg = re.compile("variable(\d+)")
+        paren_reg = re.compile("paren(\d+)")
+        group_reg = re.compile("expressiongroup(\d+)")
+
+        for sample in range(3):
+            test_quote = quote_reg.search(words[i])
+            while bool(test_quote):
+                quote = test_quote.group()
+                words[i] = words[i].replace(quote, quotes[int(quote[8:])], 1)
+                quote_count +=1
+                test_quote = quote_reg.search(words[i])
+
+            test_paren = paren_reg.search(words[i])
+            while bool(test_paren):
+                paren = test_paren.group()
+                words[i] = words[i].replace(paren, '({})'.format(parens[int(paren[5:])]), 1)
+                paren_count +=1
+                test_paren = paren_reg.search(words[i])
+
+            test_group = group_reg.search(words[i])
+            while bool(test_group):
+                group = test_group.group()
+                words[i] = words[i].replace(group, groups[int(group[15:])], 1)
+                quote_count +=1
+                test_group = group_reg.search(words[i])
+
+        if is_in_quotes(words[i]): words[i] = '"{}"'.format(words[i][1:-1])
+
     new_obj = Print(args=words)
     return new_obj
 
@@ -257,7 +366,7 @@ def parse_input(inp, current):
 
     command = words[0].lower()
 
-    if command == "print":
+    if command[:5] == "print":
         current.add_arg(parse_print(inp))
     elif command == "if":
         current.add_arg(parse_if(inp))
