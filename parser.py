@@ -26,6 +26,8 @@ def is_in_quotes(s):
 
 def parse_print(inp):
     inp, quotes = extract_quotes(inp)
+    print("inp: {}".format(inp))
+    print("quotes: {}".format(quotes))
     inp = inp.lower().replace('and', '').replace(',', '')
     words = re.split('\s+', inp)
     del words[0]
@@ -127,7 +129,7 @@ def parse_else(inp):
 #iterate from 1 to 5
 #for i from 1 to 5
 #do from 1 to 5
-def parse_loop(inp):
+def parse_for_loop(inp):
     inp = inp.lower().replace('(', ' ').replace(')', '')
 
     words = re.split('\s+', inp)
@@ -153,7 +155,7 @@ def parse_loop(inp):
             print(words[3])
             return None
 
-    new_obj = Loop(lower=start, upper=end, var=var)
+    new_obj = ForLoop(lower=start, upper=end, var=var)
     return new_obj
 
 # set x equal to apple * sin(banana)
@@ -196,7 +198,7 @@ def parse_return(inp):
 
 def parse_input(inp, current):
     if len(inp) == 0:
-        current.add_arg(Generic(""))
+        current.add_arg(Generic("\n"))
         return current
 
     words = inp.split(" ")
@@ -212,38 +214,47 @@ def parse_input(inp, current):
         if current.get_parent() is not None:
             current = current.get_parent()
             current.add_arg(Generic(""))
-
     elif command == "else":
         if len(words) == 1:
             if isinstance(current, If) or isinstance(current, Elif):
                 current = current.get_parent()
+                current.add_arg(Generic(""))
                 current.add_arg(Else())
                 current = current.get_args()[-1]
         elif words[1].lower() == "if" and (isinstance(current, If) or isinstance(current, Elif)):
             current = current.get_parent()
+            current.add_arg(Generic(""))
             current.add_arg(parse_elif(inp))
             current = current.get_args()[-1]
         elif words[1] != "if" and (isinstance(current, If) or isinstance(current, Elif)):
             current = current.get_parent()
+            current.add_arg(Generic(""))
             current.add_arg(parse_else(inp))
             current = current.get_args()[-1]
     elif command == "do" or command == "for" or command == "iterate":
-        current.add_arg(parse_loop(inp))
+        current.add_arg(parse_for_loop(inp))
         current = current.get_args()[-1]
-    elif command == "undo":
-        if current.get_parent() is None:
-            pass
-
+    elif command == "undo" or command == "z":
         if len(current.get_args()) == 0:
-            current = current.get_parent()
-            current.remove_arg()
+            if current.get_parent() is not None:
+                current = current.get_parent()
+                current.remove_arg()
+
+                if len(current.get_args()) != 0:
+                    current = current.get_args()[-1]
         else:
-            current.remove_arg()
+            if isinstance(current.get_args()[-1], Generic):
+                if current.get_args()[-1].args[0] == "":
+                    current.remove_arg()
+                    current = current.get_args()[-1]
+                else:
+                    current.remove_arg()
+            else:
+                current.remove_arg()
     elif command == "set" or command == "assign" or words[1] == "=":
         current.add_arg(parse_set(inp))
 
     elif command == "define" or command == "def" or command == "function":
-        print('lol')
         current.add_arg(parse_function(inp))
         current = current.get_args()[-1]
 
@@ -258,8 +269,9 @@ def parse_input(inp, current):
             tmp = tmp.get_parent()
 
         if bool(tmp):
-            current.add_arg(parse_return(inp))
+            current.add_arg(parse_return(inp))      
             current = current.get_parent()
+            current.add_arg(Generic(""))
 
     return current
 

@@ -71,34 +71,6 @@ class Parent():
     def set_parent(self, parent):
         self.parent = parent
 
-class Argument(Parent):
-    def __init__(self, isString=True, args="hello world", level=-1):
-        self.args = args
-        self.level = -1
-
-        self.isString = isString
-
-    def __str__(self):
-        return ("\"{}\"".format(self.args) if self.isString else str(self.args))
-
-    def add_arg(self, arg):
-        raise AttributeError("'Argument' object has no attribute 'addArg'")
-
-    def decrement_level(self):
-        return
-
-    def get_is_string(self):
-        return self.isString
-
-    def increment_level(self):
-        return
-
-    def set_is_string(self, isString):
-        self.isString = isString
-
-    def set_level(self, level):
-        return
-
 class Print(Parent):
     def __init__(self, args=None, level=0):
         if args is None:
@@ -123,7 +95,7 @@ class Print(Parent):
     def set_level(self, level):
         self.level = level
 
-class Loop(Parent):
+class ForLoop(Parent):
     def __init__(self, lower=0, upper=10, var="i", args=None, level=0):
         super().__init__(args, level)
 
@@ -154,6 +126,23 @@ class Loop(Parent):
 
     def set_upper(self, upper):
         self.upper = upper
+
+class WhileLoop(Parent):
+    def __init__(self, condition="", args=None, level=0):
+        super().__init__(args, level)
+
+        self.condition = condition
+
+    def __str__(self):
+        if len(self.args) == 0:
+            return " " * 4 * self.level + "while {}:\n".format(self.condition)
+
+        retval = " " * 4 * self.level + "while {}:\n".format(self.condition)
+
+        for arg in self.args:
+            retval += str(arg)
+
+        return retval
 
 class If(Parent):
     def __init__(self, condition="", args=None, level=0):
@@ -199,7 +188,7 @@ class Else(Parent):
 
     def __str__(self):
         if len(self.args) == 0:
-            return "else:\n"
+            return " " * 4 * self.level + "else:\n"
 
         ret = " " * 4 * self.level + "else:\n"
 
@@ -265,8 +254,7 @@ class Generic(Parent):
             self.args = [self.args]
 
     def __str__(self):
-        ret = " " * 4 * self.level + self.args[0] + "\n"
-        return ret
+        return self.args[0]
 
     def set_level(self, level):
         self.level = level
@@ -278,32 +266,5 @@ if __name__ == "__main__":
     root = Parent()
     current = root
 
-    current = parse_input("print apple", current)
-    current = parse_input("if i > 1", current)
-    current = parse_input("print hello", current)
-    print(root)
-    current = parse_input("undo", current)
-    print(root)
-    current = parse_input("print 'poop'", current)
-    current = parse_input("if i < 1", current)
-    print(root)
-    current = parse_input("undo", current)
-    print(root)
-    current = parse_input("end", current)
-    current = parse_input("", current)
-    print(root)
-
-    root = Parent()
-    current = root
-
-    a = Loop()
-    root.add_arg(a)
-    current = current.get_args()[-1]
-    current.add_arg(Print(args='lol'))
-    current = current.get_parent()
-
-    b = Loop()
-    current.add_arg(b)
-    current = current.get_args()[-1]
-    current.add_arg(Print(args='false'))
+    current = parse_input("print \"apple and the world\"", current)
     print(root)
