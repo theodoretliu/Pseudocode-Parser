@@ -11,14 +11,12 @@
   <script src="{{ url_for('static', filename='python.js') }}"></script>
   <script>
     $("#nav-home").attr("class", "active");
-    $("#nav-about").attr("class", "");
-    $("#nav-contact").attr("class", "");
   </script>
   <div class="container">
 
     <form id="user_input">
       <div class="input-group input-group-lg">
-        <input class="form-control input-lg" type="text" id="parse-input" placeholder="Enter your pseudocode" autocomplete="off">
+        <input class="form-control input-lg" type="text" id="parse-input" placeholder="Enter your pseudocode" autocomplete="off" autofocus>
         <span class="input-group-btn">
           <button class="btn btn-default btn-lg" id="parse-button">Submit</button>
         </span>

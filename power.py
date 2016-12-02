@@ -259,6 +259,26 @@ class Generic(Parent):
     def set_level(self, level):
         self.level = level
 
+class Return(Parent):
+    def __init__(self, args=None, level=0):
+        if args is None:
+            self.args = []
+        else:
+            self.args = args
+
+        self.level = level
+
+        if not isinstance(self.args, list):
+            self.args = [self.args]
+
+    def __str__(self):
+        if len(self.args) == 0:
+            return " " * 4 * self.level + "return\n"
+            
+        return " " * 4 * self.level + "return {}\n".format(self.args[0])
+
+    def set_level(self, level):
+        self.level = level
 
 if __name__ == "__main__":
     from parser import *

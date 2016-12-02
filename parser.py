@@ -179,7 +179,7 @@ def parse_set(inp):
         var = words[0]
         expression = ' '.join(words[2:])
 
-    return Generic(args="{} = {}".format(var, expression))
+    return Generic(args="{} = {}\n".format(var, expression))
 
 #create/define a function called/named name with parameters a, b, c, and d
 def parse_function(inp):
@@ -194,7 +194,59 @@ def parse_function(inp):
     return Function(name=func_name, params=params)
 
 def parse_return(inp):
-    return Generic(args=inp)
+    words = inp.split(" ")
+
+    if len(words) == 1:
+        return Return()
+
+    retval = ""
+    for word in words[1:]:
+        if word != "":
+            retval += word + " "
+
+    return Return(args=retval)
+
+def parse_call(inp):
+    words = inp.split(" ")
+
+    indices = [-1] * 2
+    keywords = ["function", "method"]
+
+    for i in range(2):
+        try:
+            indices[i] = words.index(keywords[i])
+        except Exception:
+            pass
+
+    keyword_index = max(indices)
+    print(keyword_index)
+    if keyword_index == -1:
+        function_name = words[1]
+    else:
+        function_name = words[keyword_index + 1]
+
+    parameter_keywords = ["parameters", "parameter", "arguments", "argument"]
+
+    indices = [-1] * 4
+
+    for i in range(4):
+        try:
+            indices[i] = inp.index(parameter_keywords[i])
+        except Exception:
+            pass
+
+    parameter_index = max(indices)
+
+    if parameter_index == -1:
+        parameters = []
+    else:
+        temp = inp[parameter_index:].replace(",", "").split(" ")
+        print(temp)
+        parameters = [word for word in temp[1:] if word != "and"]
+
+    retval = "{}({})\n".format(function_name, ", ".join(parameters))
+
+    return Generic(args=retval)
 
 def parse_input(inp, current):
     if len(inp) == 0:
@@ -214,10 +266,10 @@ def parse_input(inp, current):
         if current.get_parent() is not None:
             current = current.get_parent()
             current.add_arg(Generic(""))
-    elif command == "else":
+    elif command == "else" or command == "otherwise":
         if len(words) == 1:
             if isinstance(current, If) or isinstance(current, Elif):
-                current = current.get_parent()
+                current = current.get_parent()                
                 current.add_arg(Generic(""))
                 current.add_arg(Else())
                 current = current.get_args()[-1]
@@ -247,11 +299,24 @@ def parse_input(inp, current):
                 if current.get_args()[-1].args[0] == "":
                     current.remove_arg()
                     current = current.get_args()[-1]
+                    if isinstance(current.get_args()[-1], Return):
+                        current.remove_arg()
                 else:
                     current.remove_arg()
             else:
                 current.remove_arg()
-    elif command == "set" or command == "assign" or words[1] == "=":
+
+    elif command == "return":
+        tmp = current
+        while tmp != None and not isinstance(tmp, Function):
+            tmp = tmp.get_parent()
+
+        if bool(tmp):
+            current.add_arg(parse_return(inp))      
+            current = current.get_parent()
+            current.add_arg(Generic(""))
+
+    elif command == "set" or command == "assign":
         current.add_arg(parse_set(inp))
 
     elif command == "define" or command == "def" or command == "function":
@@ -263,15 +328,14 @@ def parse_input(inp, current):
             current.add_arg(parse_function(inp))
             current = current.get_args()[-1]
 
-    elif command == "return":
-        tmp = current
-        while tmp != None and not isinstance(tmp, Function):
-            tmp = tmp.get_parent()
+    elif command == "call":
+        current.add_arg(parse_call(inp))
 
-        if bool(tmp):
-            current.add_arg(parse_return(inp))      
-            current = current.get_parent()
-            current.add_arg(Generic(""))
+    else:
+        if len(words) > 1 and words[1] == "=":
+            current.add_arg(parse_set(inp))
+        elif inp.count("(") == 1 and inp.count(")"):
+            current.add_arg(Generic(args="{}\n".format(inp)))
 
     return current
 

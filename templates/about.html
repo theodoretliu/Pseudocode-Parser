@@ -6,14 +6,14 @@
 
 {% block main %}
   <script>
-    $("#nav-home").attr("class", "");
     $("#nav-about").attr("class", "active");
-    $("#nav-contact").attr("class", "");
   </script>
   <div class="container">
     <div class="text-left">
-      <h3>Goal: Make Coding Simpler</h3>
-      <p>Our goal is simple: make coding accessible for all. No more getting bogged down by syntax. No more messing with indentation. Simply say what you mean to say, and see that code generated right in front of you. Not happy with the results? Change the code and push a button. The revised code will be sent to us so that our algorithm can improve in the future. Thank you for being a part of the journey!<p>
+      <h3>Our Goal: Make Coding Simpler</h3>
+      <p>
+        When first learning to program, ideas, not syntax, are of utmost importance. Our goal is to make coding simpler, and in doing so, bring code to more people. No more getting bogged down by syntax. No more messing with indentation. Simply say what you mean to say, and see the code generated right in front of your eyes. Not happy with the results? Head over to our <a href="{{ url_for('contact') }}">contact page</a> and shoot us an email. We are happy to help! We hope you enjoy this product.
+      <p>
     </div>
   </div>
 {% endblock %}
