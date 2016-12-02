@@ -5,6 +5,10 @@
 {% endblock %}
 
 {% block main %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='codemirror.css' ) }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='monokai.css') }}">
+  <script src="{{ url_for('static', filename='codemirror.js') }}"></script>
+  <script src="{{ url_for('static', filename='python.js') }}"></script>
   <script>
     $("#nav-home").attr("class", "active");
     $("#nav-about").attr("class", "");
@@ -14,64 +18,48 @@
 
     <form id="user_input">
       <div class="input-group input-group-lg">
-        <input class="form-control input-lg" type="text" id="parse-input" placeholder="Enter your pseudocode">
+        <input class="form-control input-lg" type="text" id="parse-input" placeholder="Enter your pseudocode" autocomplete="off">
         <span class="input-group-btn">
-          <button type="submit" class="btn btn-default btn-lg" id="parse-button">Submit</button>
+          <button class="btn btn-default btn-lg" id="parse-button">Submit</button>
         </span>
       </div>
     </form>
     <br>
     <textarea id="results" class="CodeMirror" rows="10" style="display:none">"Your code will appear here"</textarea>
-    <script>
-      var editor = CodeMirror.fromTextArea(results, {
-        lineNumbers: true,
-        mode: "python",
-        theme: "monokai",
-        tabSize: 4,
-        indentUnit: 4,
-      });
-      $("#results").css("display:block");
-    </script>
-  </div>
-  <div class="container" id="feedback" style="display:none">
-    <div class="text-right" style="padding-top:12px">
-      Is the code correct?
-      <button class="btn btn-success" id="feedback-yes" style="margin:0px 12px">Yes</button>
-      <button class="btn btn-danger" id="feedback-no">No</button>
-    </div>
-  </div>
-  <div class="container" id="feedback-response" style="display:none">
-    <div class="text-right" style="padding-top:20px"></div>
+
   </div>
 
-
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
   <script>
+
+    var editor = CodeMirror.fromTextArea(results, {
+      lineNumbers: true,
+      mode: "python",
+      theme: "monokai",
+      tabSize: 4,
+      indentUnit: 4,
+    });
+    $("#results").css("display:block");
+
     $("#user_input").on("submit", function(e) {
       e.preventDefault();
+      inp = $("#parse-input").val()
+      if (inp.length > 0) {
+        codeHistory.push(inp);
+        idx = codeHistory.length - 1;
+      }
+
       $.ajax({
         url: "{{ url_for('parse') }}",
         data: {
-          input: $("#parse-input").val(),
+          input: inp,
         },
         success: function (result) {
           $("#parse-input").val("");
           editor.getDoc().setValue(result);
         }
       });
-      $("#feedback").css("display", "block");
-      $("#feedback-response").css("display", "none");
-    });
-
-    $("#feedback-yes").on("click", function() {
-      $("#feedback-response > div").html("Awesome! Thanks for your feedback.");
-      $("#feedback-response").css("display", "block");
-      $("#feedback").css("display", "none");
-    });
-
-    $("#feedback-no").on("click", function() {
-      $("#feedback-response > div").html("Sorry about that. Thanks for your feedback.");
-      $("#feedback-response").css("display", "block");
-      $("#feedback").css("display", "none");
     });
   </script>
+
 {% endblock %}

@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}
+  Contact
+{% endblock %}
+
+{% block main %}
+  <script>
+    $("#nav-home").attr("class", "");
+    $("#nav-about").attr("class", "");
+    $("#nav-contact").attr("class", "active");
+  </script>
+  <div class="container">
+    <div class="text-left">
+      <h3>Goal: Give us money</h3>
+      <p>
+      If you'd like to give us money, contact us at <strong>123-456-789@gmail.com</strong>
+      <p>
+    </div>
+  </div>
+{% endblock %}

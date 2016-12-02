@@ -8,13 +8,13 @@ def extract_quotes(s):
     count = 0
     idx1 = idx2 = -1
     for i in range(len(s)):
-        if s[i] == "`" and s[i-1] != "\\":
+        if s[i] == "\"" and s[i-1] != "\\":
             if idx1 == -1:
                 idx1 = i + 1
             else:
                 idx2 = i
                 quote = s[idx1:idx2]
-                retval = retval.replace("`" + quote + "`", "'variable" + str(count) + "'")
+                retval = retval.replace("\"" + quote + "\"", "'variable" + str(count) + "'")
                 quotes.append(quote)
                 count += 1
                 idx1 = -1

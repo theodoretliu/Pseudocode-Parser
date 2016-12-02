@@ -11,9 +11,6 @@
   <script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
-  <script src="{{ url_for('static', filename='codemirror.js') }}"></script>
-  <script src="{{ url_for('static', filename='python.js') }}"></script>
-
   <link rel="stylesheet" href="{{ url_for('static', filename='codemirror.css'	) }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='monokai.css') }}">
   <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet"/>
@@ -37,7 +34,7 @@
         <ul class="nav navbar-nav">
           <li class="" id="nav-home"><a href="{{ url_for('index') }}">Home</a></li>
           <li class="" id="nav-about"><a href="{{ url_for('about') }}">About</a></li>
-          <li class="" id="nav-contact"><a href="">Contact</a></li>
+          <li class="" id="nav-contact"><a href="{{ url_for('contact') }}">Contact</a></li>
         </ul>
       </div><!--/.nav-collapse -->
     </div>

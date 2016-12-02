@@ -1,7 +1,7 @@
 import os
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from power import *
-from parser import *
+from parser import parse_input
 
 roots = dict()
 currents = dict()
@@ -30,12 +30,20 @@ def index():
 def about():
 	return render_template("about.html")
 
+@app.route("/contact")
+def contact():
+	return render_template("contact.html")
+
 @app.route("/parse")
 def parse():
 	pseudocode = request.args.get("input")
 	currents[session["id"]] = parse_input(pseudocode, currents[session["id"]])
 
 	return str(roots[session["id"]])
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html')
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
