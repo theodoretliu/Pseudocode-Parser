@@ -235,6 +235,17 @@ def parse_else(inp):
     new_obj = Else(args=arg)
     return new_obj 
 
+def get_numbers(words):
+    numbers = []
+    for word in words:
+        try:
+            int(word)
+            numbers.append(int(word))
+        except:
+            pass
+
+    return numbers
+
 #iterate from 1 to 5
 #for i from 1 to 5
 #do from 1 to 5
@@ -249,12 +260,21 @@ def parse_for_loop(inp):
         var = words[0]
         del words[0]
 
+    start = 0
+    end = 0
+
     if "range" in words:
-        try:
+        numbers = get_numbers(words)
+
+        if len(numbers) == 2:
+            start = numbers[0]
+            end = numbers[1]
+        elif len(numbers) == 1:
             start = 0
-            end = words[words.index("range") + 1]
-        except:
+            end = numbers[0]
+        else:
             pass
+
     else:
         try:
             start = words[1]
@@ -270,7 +290,7 @@ def parse_for_loop(inp):
 # set x equal to apple * sin(banana)
 # x = 0 + 
 # assign apple to x
-def parse_set(inp):
+def parse_set(inp, current):
     inp = re.sub('equal to|equal|to', '=', inp, flags=re.IGNORECASE)
     inp = re.sub('set', 'set', inp, flags=re.IGNORECASE)
     inp = re.sub('assign', 'assign', inp, flags=re.IGNORECASE)
@@ -288,7 +308,7 @@ def parse_set(inp):
         var = words[0]
         expression = ' '.join(words[2:])
 
-    return Generic(args="{} = {}\n".format(var, expression))
+    return Generic(args=" " * 4 * (current.get_level() + 1) + "{} = {}\n".format(var, expression))
 
 #create/define a function called/named name with parameters a, b, c, and d
 def parse_function(inp):
@@ -357,11 +377,42 @@ def parse_call(inp):
 
     return Generic(args=retval)
 
+def undo(current):
+    if len(current.get_args()) == 0:
+        if current.get_parent() is not None:
+            if isinstance(current, Elif) or isinstance(current, Else):
+                #print("I'm here")
+                current = current.get_parent()
+                #print(current)
+                current.remove_arg()
+                current.remove_arg()
+
+                current = current.get_args()[-1]
+                # print(current)
+            else:
+                current = current.get_parent()
+                current.remove_arg()
+
+    else:
+        if isinstance(current.get_args()[-1], Generic):
+            if current.get_args()[-1].args[0] == "":
+                current.remove_arg()
+                current = current.get_args()[-1]
+                if isinstance(current.get_args()[-1], Return):
+                    current.remove_arg()
+            else:
+                current.remove_arg()
+        else:
+            current.remove_arg()
+
+    return current
+
 def parse_input(inp, current):
     if len(inp) == 0:
-        current.add_arg(Generic("\n"))
+        current.add_arg(Generic(" " * 4 * (current.level + 1) + "\n"))
         return current
 
+    inp = inp.strip()
     words = inp.split(" ")
 
     command = words[0].lower()
@@ -396,25 +447,8 @@ def parse_input(inp, current):
         current.add_arg(parse_for_loop(inp))
         current = current.get_args()[-1]
     elif command == "undo" or command == "z":
-        if len(current.get_args()) == 0:
-            if current.get_parent() is not None:
-                current = current.get_parent()
-                current.remove_arg()
-
-                if len(current.get_args()) != 0:
-                    current = current.get_args()[-1]
-        else:
-            if isinstance(current.get_args()[-1], Generic):
-                if current.get_args()[-1].args[0] == "":
-                    current.remove_arg()
-                    current = current.get_args()[-1]
-                    if isinstance(current.get_args()[-1], Return):
-                        current.remove_arg()
-                else:
-                    current.remove_arg()
-            else:
-                current.remove_arg()
-
+        print("hello there")
+        current = undo(current)
     elif command == "return":
         tmp = current
         while tmp != None and not isinstance(tmp, Function):
@@ -426,7 +460,7 @@ def parse_input(inp, current):
             current.add_arg(Generic(""))
 
     elif command == "set" or command == "assign":
-        current.add_arg(parse_set(inp))
+        current.add_arg(parse_set(inp, current))
 
     elif command == "define" or command == "def" or command == "function":
         current.add_arg(parse_function(inp))
@@ -442,9 +476,9 @@ def parse_input(inp, current):
 
     else:
         if len(words) > 1 and words[1] == "=":
-            current.add_arg(parse_set(inp))
+            current.add_arg(parse_set(inp, current))
         elif inp.count("(") == 1 and inp.count(")"):
-            current.add_arg(Generic(args="{}\n".format(inp)))
+            current.add_arg(Generic(args="{}\n".format(" " * 4 * (current.level + 1) + inp)))
 
     return current
 

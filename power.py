@@ -212,6 +212,9 @@ class Function(Parent):
             self.params = [self.params]
 
     def __str__(self):
+        if len(self.args) == 0:
+            return " " * 4 * self.level + "def {}({}):\n".format(self.name, ", ".join(self.params))
+
         ret = " " * 4 * self.level + "def {}({}):\n".format(self.name, ", ".join(self.params))
 
         for arg in self.args:
@@ -231,7 +234,11 @@ class Class(Parent):
 
     def __str__(self):
         parent_name = self.parent_class.get_name() if self.parent_class is not None else ""
-        ret = " " * 4 * level + "class {}({}):\n".format(self.name, parent_name)
+
+        if len(self.args) == 0:
+            return " " * 4 * self.level + "class {}({}):\n".format(self.name, parent_name)
+
+        ret = " " * 4 * self.level + "class {}({}):\n".format(self.name, parent_name)
 
         for arg in self.args:
             ret += str(arg)
@@ -287,4 +294,12 @@ if __name__ == "__main__":
     current = root
 
     current = parse_input("print \"apple and the world\"", current)
+    current = parse_input("if i is greater than 1", current)
+    current = parse_input("print hello", current)
+    current = parse_input("else if i is less than 1", current)
+    print(root)
+    current = parse_input("z", current)
+    print("current")
+    print(current)
+    print("root")
     print(root)
