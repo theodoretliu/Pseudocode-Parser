@@ -152,6 +152,9 @@ def parse_print(inp):
 
 # if i > 1 then 
 def parse_if(inp):
+    inp = re.sub('(is not|isn(\')?t)( equal to)?', '!=', inp, flags=re.IGNORECASE)
+    inp = re.sub('(does not|doesn(\')?t) equal( to)?', '!=', inp, flags=re.IGNORECASE)
+    inp = re.sub('not equal(s)?', '!=', inp, flags=re.IGNORECASE)
     inp = re.sub('if', 'if', inp, flags=re.IGNORECASE)
     inp = re.sub('then', 'then', inp, flags=re.IGNORECASE)
     inp = re.sub('true', 'True', inp, flags=re.IGNORECASE)
@@ -174,21 +177,27 @@ def parse_if(inp):
         else:
             cond = inp
             args = []
-        cond = re.sub('is less than', '<', cond, flags=re.IGNORECASE)
-        cond = re.sub('is greater than', '>', cond, flags=re.IGNORECASE)
-        cond = re.sub('is equal to', '==', cond, flags=re.IGNORECASE)
-        cond = re.sub('equals', '==', cond, flags=re.IGNORECASE)
+        cond = re.sub('(is )?less than or equal to', '<=', cond, flags=re.IGNORECASE)
+        cond = re.sub('(is )?greater than or equal to', '>=', cond, flags=re.IGNORECASE)
+        cond = re.sub('(is )?less than', '<', cond, flags=re.IGNORECASE)
+        cond = re.sub('(is )?greater than', '>', cond, flags=re.IGNORECASE)
+        cond = re.sub('(is )?equal to', '==', cond, flags=re.IGNORECASE)
+        cond = re.sub('equal(s)?', '==', cond, flags=re.IGNORECASE)
         cond = re.sub('is', '==', cond, flags=re.IGNORECASE)
         conditions = re.split('\s+', cond)
         conditions.remove('if')
         
         new_obj = If(condition=' '.join(conditions).rstrip())
-        if len(args) != 0: 
+
+        if len(args) != 0:
             new_obj.add_arg(parse_input(args))
             
         return new_obj
 
 def parse_elif(inp):
+    inp = re.sub('(is not|isn(\')?t)( equal to)?', '!=', inp, flags=re.IGNORECASE)
+    inp = re.sub('(does not|doesn(\')?t) equal( to)?', '!=', inp, flags=re.IGNORECASE)
+    inp = re.sub('not equal(s)?', '!=', inp, flags=re.IGNORECASE)
     inp = re.sub('if', 'if', inp, flags=re.IGNORECASE)
     inp = re.sub('then', 'then', inp, flags=re.IGNORECASE)
     inp = re.sub('true', 'True', inp, flags=re.IGNORECASE)
@@ -212,10 +221,12 @@ def parse_elif(inp):
         else:
             cond = inp
             args = []
-        cond = re.sub('is less than', '<', cond, flags=re.IGNORECASE)
-        cond = re.sub('is greater than', '>', cond, flags=re.IGNORECASE)
-        cond = re.sub('is equal to', '==', cond, flags=re.IGNORECASE)
-        cond = re.sub('equals', '==', cond, flags=re.IGNORECASE)
+        cond = re.sub('(is )?less than or equal to', '<=', cond, flags=re.IGNORECASE)
+        cond = re.sub('(is )?greater than or equal to', '>=', cond, flags=re.IGNORECASE)
+        cond = re.sub('(is )?less than', '<', cond, flags=re.IGNORECASE)
+        cond = re.sub('(is )?greater than', '>', cond, flags=re.IGNORECASE)
+        cond = re.sub('(is )?equal to', '==', cond, flags=re.IGNORECASE)
+        cond = re.sub('equal(s)?', '==', cond, flags=re.IGNORECASE)
         cond = re.sub('is', '==', cond, flags=re.IGNORECASE)
         conditions = re.split('\s+', cond)
         conditions.remove('if')
@@ -377,6 +388,27 @@ def parse_call(inp):
 
     return Generic(args=retval)
 
+def parse_while(inp):
+    inp = re.sub('while', '', inp, 1, flags=re.IGNORECASE)
+    inp = re.sub('(is not|isn(\')?t)( equal to)?', '!=', inp, flags=re.IGNORECASE)
+    inp = re.sub('(does not|doesn(\')?t) equal( to)?', '!=', inp, flags=re.IGNORECASE)
+    inp = re.sub('not equal(s)?', '!=', inp, flags=re.IGNORECASE)
+    inp = re.sub('if', 'if', inp, flags=re.IGNORECASE)
+    inp = re.sub('then', 'then', inp, flags=re.IGNORECASE)
+    inp = re.sub('true', 'True', inp, flags=re.IGNORECASE)
+    inp = re.sub('false', 'False', inp, flags=re.IGNORECASE)
+    inp = re.sub('else', "", inp, flags=re.IGNORECASE).strip()
+    inp = re.sub('(is )?less than or equal to', '<=', inp, flags=re.IGNORECASE)
+    inp = re.sub('(is )?greater than or equal to', '>=', inp, flags=re.IGNORECASE)
+    inp = re.sub('(is )?less than', '<', inp, flags=re.IGNORECASE)
+    inp = re.sub('(is )?greater than', '>', inp, flags=re.IGNORECASE)
+    inp = re.sub('(is )?equal to', '==', inp, flags=re.IGNORECASE)
+    inp = re.sub('equal(s)?', '==', inp, flags=re.IGNORECASE)
+    inp = re.sub('is', '==', inp, flags=re.IGNORECASE)
+    conditions = re.split('\s+', inp)
+
+    return WhileLoop(condition=' '.join(conditions).rstrip())
+
 def undo(current):
     if len(current.get_args()) == 0:
         if current.get_parent() is not None:
@@ -421,6 +453,9 @@ def parse_input(inp, current):
         current.add_arg(parse_print(inp))
     elif command == "if":
         current.add_arg(parse_if(inp))
+        current = current.get_args()[-1]
+    elif command == "while":
+        current.add_arg(parse_while(inp))
         current = current.get_args()[-1]
     elif command == "end":
         if current.get_parent() is not None:
@@ -487,29 +522,10 @@ if __name__ == "__main__":
     root = Parent()
     current = root
 
-    inp = "create a function called fizzbuzz with parameters i"
-    inp2 = "if i % 15 is equal to 0"
-    inp3 = "print 'fizzbuzz'"
-    inp4 = "else if i % 5 is equal to 0"
-    inp5 = "print 'buzz'"
-    inp6 = 'else if i % 3 is equal to 0'
-    inp7 = "print 'fizz'"
-    inp8 = 'end'
-    inp9 = 'end'
-    inp10 = 'print fizzbuzz(15)'
+    inp = "while x is less than 5"
 
 
     current = parse_input(inp, current)
-    current = parse_input(inp2, current)
-    current = parse_input(inp3, current)
-    current = parse_input(inp4, current)
-    current = parse_input(inp5, current)
-    current = parse_input(inp6, current)
-    current = parse_input(inp7, current)
-    current = parse_input(inp8, current)
-    current = parse_input(inp9, current)
-    current = parse_input(inp10, current)
-
 
 
     print(root)
