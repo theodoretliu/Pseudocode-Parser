@@ -59,7 +59,8 @@
         data: {
           input: inp,
         },
-        success: function (result) {
+      })
+      .done(function(result) {
           if (result.isError) {
             $("#error-message").fadeTo(3000, 500).slideUp(500, function(){
                 $("#error-message").slideUp(500);
@@ -67,8 +68,12 @@
           } 
           else {
             editor.getDoc().setValue(result.code);
-          }  
-          $("#parse-input").val("");        
+          }
+          $("#parse-input").val("");  
+
+          if (editor.getDoc().getValue() == "") {
+            editor.getDoc().setValue("\"Your code will appear here\"");
+          }      
         }
       });
     });
