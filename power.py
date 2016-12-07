@@ -105,8 +105,8 @@ class ForLoop(Parent):
 
     def __str__(self):
         if len(self.args) == 0:
-            return " " * 4 * self.level + "for {} in range({}{}):\n{}".format(
-                self.var, (str(self.lower) + ", " if self.lower != 0 else ""), self.upper, " " * 4 * (self.level + 1))
+            return " " * 4 * self.level + "for {} in range({}{}):\n".format(
+                self.var, (str(self.lower) + ", " if self.lower != 0 else ""), self.upper)
 
         ret = " " * 4 * self.level + "for {} in range({}{}):\n".format(
             self.var, (str(self.lower) + ", " if self.lower != 0 else ""), self.upper)
@@ -140,7 +140,7 @@ class WhileLoop(Parent):
 
     def __str__(self):
         if len(self.args) == 0:
-            return " " * 4 * self.level + "while {}:\n{}".format(self.condition, " " * 4 * (self.level + 1))
+            return " " * 4 * self.level + "while {}:\n".format(self.condition)
 
         retval = " " * 4 * self.level + "while {}:\n".format(self.condition)
 
@@ -160,7 +160,7 @@ class If(Parent):
             return " " * 4 * self.level + "if\n"
 
         if len(self.args) == 0:
-            return " " * 4 * self.level + "if {}:\n{}".format(self.condition, " " * 4 * (self.level + 1))
+            return " " * 4 * self.level + "if {}:\n".format(self.condition)
 
         ret = " " * 4 * self.level + "if {}:\n".format(self.condition)
 
@@ -178,7 +178,7 @@ class Elif(If):
             return " " * 4 * self.level + "elif\n"
 
         if len(self.args) == 0:
-            return " " * 4 * self.level + "elif {}:\n{}".format(self.condition, " " * 4 * (self.level + 1))
+            return " " * 4 * self.level + "elif {}:\n".format(self.condition)
 
         ret = " " * 4 * self.level + "elif {}:\n".format(self.condition)
 
@@ -193,7 +193,7 @@ class Else(Parent):
 
     def __str__(self):
         if len(self.args) == 0:
-            return " " * 4 * self.level + "else:\n{}".format(" " * 4 * (self.level + 1))
+            return " " * 4 * self.level + "else:\n"
 
         ret = " " * 4 * self.level + "else:\n"
 
@@ -218,8 +218,7 @@ class Function(Parent):
 
     def __str__(self):
         if len(self.args) == 0:
-            return " " * 4 * self.level + "def {}({}):\n{}".format(
-                self.name, ", ".join(self.params), " " * 4 * (self.level + 1))
+            return " " * 4 * self.level + "def {}({}):\n".format(self.name, ", ".join(self.params))
 
         ret = " " * 4 * self.level + "def {}({}):\n".format(self.name, ", ".join(self.params))
 
@@ -242,8 +241,8 @@ class Class(Parent):
         parent_name = self.parent_class.get_name() if self.parent_class is not None else ""
 
         if len(self.args) == 0:
-            return " " * 4 * self.level + "class {}({}):\n{}".format(
-                self.name, parent_name, " " * 4 * (self.level + 1))
+            return " " * 4 * self.level + "class {}({}):\n".format(
+                self.name, parent_name)
 
         ret = " " * 4 * self.level + "class {}({}):\n".format(self.name, parent_name)
 

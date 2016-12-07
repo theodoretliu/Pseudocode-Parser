@@ -54,16 +54,20 @@
         data: {
           input: inp,
         },
-        success: function (result) {
-          if (result.isError) {
-            $("#error-message").html("Sorry, we couldn't understand your input");
-          } 
-          else {
-            $("#error-message").html("");
-            editor.getDoc().setValue(result.code);
-          }  
-          $("#parse-input").val("");        
-        }
+      })
+      .done(function(result) {
+        if (result.isError) {
+          $("#error-message").html("Sorry, we couldn't understand your input");
+        } 
+        else {
+          $("#error-message").html("");
+          editor.getDoc().setValue(result.code);
+        }  
+        $("#parse-input").val("");
+
+        if (editor.getDoc().getValue() == "") {
+          editor.getDoc().setValue("\"Your code will appear here\"");
+        }       
       });
     });
   </script>
