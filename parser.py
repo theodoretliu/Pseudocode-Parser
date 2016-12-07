@@ -235,21 +235,24 @@ def parse_else(inp):
     new_obj = Else(args=arg)
     return new_obj 
 
-def get_numbers(words):
-    numbers = []
-    for word in words:
-        try:
-            int(word)
-            numbers.append(int(word))
-        except:
-            pass
 
-    return numbers
 
 #iterate from 1 to 5
 #for i from 1 to 5
 #do from 1 to 5
 def parse_for_loop(inp):
+
+    def get_numbers(words):
+        numbers = []
+        for word in words:
+            try:
+                int(word)
+                numbers.append(int(word))
+            except:
+                pass
+
+        return numbers
+
     inp = inp.lower().replace('(', ' ').replace(')', '')
 
     words = re.split('\s+', inp)
@@ -313,7 +316,7 @@ def parse_set(inp, current):
 #create/define a function called/named name with parameters a, b, c, and d
 def parse_function(inp):
     inp = re.sub('named|called', 'named', inp, flags=re.IGNORECASE)
-    inp = re.sub('parameter([s]{1}?)|param([s]{1}?)|argument([s]{1}?)|arg([s]{1}?)', 'arg', inp, flags=re.IGNORECASE)
+    inp = re.sub('parameter(s)?|param(s)?|argument(s)?|arg(s)?', 'arg', inp, flags=re.IGNORECASE)
     inp = re.sub('and', '', inp, re.IGNORECASE)
     inp = inp.replace(',', '')
     words = re.split('\s+', inp)
@@ -336,7 +339,7 @@ def parse_return(inp):
     return Return(args=retval)
 
 def parse_call(inp):
-    words = inp.split(" ")
+    words = re.split("\s+", inp)
 
     indices = [-1] * 2
     keywords = ["function", "method"]
@@ -466,7 +469,7 @@ def parse_input(inp, current):
         current.add_arg(parse_function(inp))
         current = current.get_args()[-1]
 
-    elif command == "create":
+    elif command == "create" or command == "make":
         if bool(re.search(re.compile('function'), inp)):
             current.add_arg(parse_function(inp))
             current = current.get_args()[-1]
@@ -479,7 +482,8 @@ def parse_input(inp, current):
             current.add_arg(parse_set(inp, current))
         elif inp.count("(") == 1 and inp.count(")"):
             current.add_arg(Generic(args="{}\n".format(" " * 4 * (current.level + 1) + inp)))
-
+        else:
+            raise Exception()
     return current
 
 
