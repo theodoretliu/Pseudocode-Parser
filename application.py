@@ -1,5 +1,5 @@
 import os
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for, jsonify
 from power import *
 from parser import parse_input
 
@@ -37,9 +37,14 @@ def contact():
 @app.route("/parse")
 def parse():
 	pseudocode = request.args.get("input")
-	currents[session["id"]] = parse_input(pseudocode, currents[session["id"]])
+	is_error = False
 
-	return str(roots[session["id"]])
+	try:
+		currents[session["id"]] = parse_input(pseudocode, currents[session["id"]])
+	except:
+		is_error = True
+
+	return jsonify(isError=is_error, code=str(roots[session["id"]]))
 
 @app.errorhandler(404)
 def page_not_found(e):

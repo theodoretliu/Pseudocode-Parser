@@ -14,7 +14,7 @@
   </script>
   <div class="container">
 
-    <form id="user_input">
+    <form id="user-input">
       <div class="input-group input-group-lg">
         <input class="form-control input-lg" type="text" id="parse-input" placeholder="Enter your pseudocode" autocomplete="off" autofocus>
         <span class="input-group-btn">
@@ -24,6 +24,7 @@
     </form>
     <br>
     <textarea id="results" class="CodeMirror" rows="10" style="display:none">"Your code will appear here"</textarea>
+    <div id="error-message"></div>
 
   </div>
 
@@ -40,7 +41,7 @@
     });
     $("#results").css("display:block");
 
-    $("#user_input").on("submit", function(e) {
+    $("#user-input").on("submit", function(e) {
       e.preventDefault();
       inp = $("#parse-input").val()
       if (inp.length > 0) {
@@ -48,14 +49,20 @@
         idx = codeHistory.length - 1;
       }
 
-      $.ajax({
+      $.getJSON({
         url: "{{ url_for('parse') }}",
         data: {
           input: inp,
         },
         success: function (result) {
-          $("#parse-input").val("");
-          editor.getDoc().setValue(result);
+          if (result.isError) {
+            $("#error-message").html("Sorry, we couldn't understand your input");
+          } 
+          else {
+            $("#error-message").html("");
+            editor.getDoc().setValue(result.code);
+          }  
+          $("#parse-input").val("");        
         }
       });
     });
