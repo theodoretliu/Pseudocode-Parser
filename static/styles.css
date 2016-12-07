@@ -10,6 +10,10 @@ main .form-control {
 
     color: white;
 }
+.alert {
+    padding: 10px;
+    display: none;
+}
 
 .CodeMirror {
     text-align: left;
