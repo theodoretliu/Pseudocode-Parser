@@ -152,6 +152,8 @@ def parse_print(inp):
 
 # if i > 1 then 
 def parse_if(inp):
+    inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
+    inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)( equal to)?', '!=', inp, flags=re.IGNORECASE)
     inp = re.sub('(does not|doesn(\')?t) equal( to)?', '!=', inp, flags=re.IGNORECASE)
     inp = re.sub('not equal(s)?', '!=', inp, flags=re.IGNORECASE)
@@ -195,6 +197,8 @@ def parse_if(inp):
         return new_obj
 
 def parse_elif(inp):
+    inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
+    inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)( equal to)?', '!=', inp, flags=re.IGNORECASE)
     inp = re.sub('(does not|doesn(\')?t) equal( to)?', '!=', inp, flags=re.IGNORECASE)
     inp = re.sub('not equal(s)?', '!=', inp, flags=re.IGNORECASE)
@@ -393,6 +397,8 @@ def parse_call(inp):
 
 def parse_while(inp):
     inp = re.sub('while', '', inp, 1, flags=re.IGNORECASE)
+    inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
+    inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)( equal to)?', '!=', inp, flags=re.IGNORECASE)
     inp = re.sub('(does not|doesn(\')?t) equal( to)?', '!=', inp, flags=re.IGNORECASE)
     inp = re.sub('not equal(s)?', '!=', inp, flags=re.IGNORECASE)

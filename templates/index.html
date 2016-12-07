@@ -24,7 +24,12 @@
     </form>
     <br>
     <textarea id="results" class="CodeMirror" rows="10" style="display:none">"Your code will appear here"</textarea>
-    <div id="error-message"></div>
+    <br>
+    <div class="alert alert-warning" id="error-message">
+        <button type="button" class="close" data-dismiss="alert">x</button>
+        <strong>Sorry!</strong> 
+        We were unable to understand your input. Please try again.
+    </div>
 
   </div>
 
@@ -56,10 +61,11 @@
         },
         success: function (result) {
           if (result.isError) {
-            $("#error-message").html("Sorry, we couldn't understand your input");
+            $("#error-message").fadeTo(3000, 500).slideUp(500, function(){
+                $("#error-message").slideUp(500);
+            });
           } 
           else {
-            $("#error-message").html("");
             editor.getDoc().setValue(result.code);
           }  
           $("#parse-input").val("");        
