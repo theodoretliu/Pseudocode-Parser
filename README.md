@@ -8,10 +8,10 @@ The full source code can be found at https://github.com/theodoretliu/Pseudocode-
 
 If you would like to run the app locally, cd into the correct folder and execute the following commands
 
-pip install -r requirements.txt
-export FLASK_APP=application.py
-export FLASK_DEBUG=1
-flask run
+pip install -r requirements.txt  
+export FLASK_APP=application.py  
+export FLASK_DEBUG=1  
+flask run  
 
 Then go to your web browser and go to localhost:5000 or 127.0.0.1:5000. If using the CS50 IDE, you can navigate to CS50 IDE > Web Server in the top left corner of the page.
 
@@ -25,21 +25,21 @@ On the top of the website, the user can find "Home", "About", "Contact", and "He
 #FULL DEMONSTRATION
 The following can be inputted line by line to create the classic "fizzbuzz" function
 
-create a function called fizzbuzz with parameter n
-if n % 15 is equal to 0
-print "fizzbuzz"
-else if n % 3 is equal to 0
-print "fizz"
-otherwise if n % 5 equals 0
-print "buzz"
-print "buzz"   <- a mistake
-z 			   <- undo
-end            <- close else block
-end            <- close function
+create a function called fizzbuzz with parameter n  
+if n % 15 is equal to 0  
+print "fizzbuzz"  
+else if n % 3 is equal to 0  
+print "fizz"  
+otherwise if n % 5 equals 0  
+print "buzz"  
+print "buzz"   <- a mistake  
+z 			   <- undo  
+end            <- close else block  
+end            <- close function  
 
-for i in range 20
-call fizzbuzz with parameter i
-end
+for i in range 20  
+call fizzbuzz with parameter i  
+end  
 
 #IMPORTANT COMMANDS
 ##Undo
