@@ -40,14 +40,6 @@
     </div>
   </nav>
 
-  {% if get_flashed_messages() %}
-    <header>
-      <div class="alert alert-info" role="alert">
-        {{ get_flashed_messages() | join(" ") }}
-      </div>
-    </header>
-  {% endif %}
-
   <main>
     {% block main %}{% endblock %}
   </main>
