@@ -1,9 +1,11 @@
 import re
 from power import *
 
+# check if a string is surrounded by quotes
 def is_in_quotes(s):
     return (s[0] == "'" and s[-1] == "'") or (s[0] == "\"" and s[-1] == "\"")
 
+# check that a string has correctly paired parentheses
 def balanced_delimiters(s):
     def inv(s):
         if s == '{': return '}'
@@ -42,7 +44,7 @@ def balanced_delimiters(s):
             return False
     return True
 
-
+# remove parentheses from a string but store them as we go
 def extract_parenthesis(s):
     retval = s
     parens = []
@@ -78,6 +80,7 @@ def extract_groups(s):
 
     return retval, groups
 
+# remove stuff from quotations to allow for print to uniformly parse input
 def extract_quotes(s):
     retval = s
     quotes = []
@@ -98,9 +101,7 @@ def extract_quotes(s):
                 
     return retval, quotes
 
-def is_in_quotes(s):
-    return (s[0] == "'" and s[-1] == "'") or (s[0] == "\"" and s[-1] == "\"")
-
+# helper function that parses print statements
 def parse_print(inp):
     if inp[5] == '(':
         inp = inp[:5] + " " + inp[5:]
@@ -151,6 +152,7 @@ def parse_print(inp):
     return new_obj
 
 # if i > 1 then 
+# helper function that parses if statements correctly
 def parse_if(inp):
     inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
@@ -196,6 +198,7 @@ def parse_if(inp):
             
         return new_obj
 
+# helper function that parses else ifs
 def parse_elif(inp):
     inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
@@ -240,6 +243,7 @@ def parse_elif(inp):
             new_obj.add_arg(parse_input(args))
         return new_obj
 
+# simply parses else statements
 def parse_else(inp):
     words = re.split('\s+', inp)
 
@@ -252,11 +256,13 @@ def parse_else(inp):
 
 
 
-#iterate from 1 to 5
-#for i from 1 to 5
-#do from 1 to 5
+# iterate from 1 to 5
+# for i from 1 to 5
+# do from 1 to 5
+# helper function that parses for loops
 def parse_for_loop(inp):
 
+    # function that returns the numbers that are in a string
     def get_numbers(words):
         numbers = []
         for word in words:
@@ -306,6 +312,7 @@ def parse_for_loop(inp):
 # set x equal to apple * sin(banana)
 # x = 0 + 
 # assign apple to x
+# helper function that parses "set" keyword
 def parse_set(inp, current):
     inp = re.sub('equal to|equal|to', '=', inp, flags=re.IGNORECASE)
     inp = re.sub('set', 'set', inp, flags=re.IGNORECASE)
@@ -326,7 +333,8 @@ def parse_set(inp, current):
 
     return Generic(args=" " * 4 * (current.get_level() + 1) + "{} = {}\n".format(var, expression))
 
-#create/define a function called/named name with parameters a, b, c, and d
+# create/define a function called/named name with parameters a, b, c, and d
+# helper function that correctly parses the creation of functions from pseudocode
 def parse_function(inp):
     inp = re.sub('named|called', 'named', inp, flags=re.IGNORECASE)
     inp = re.sub('parameter(s)?|param(s)?|argument(s)?|arg(s)?', 'arg', inp, flags=re.IGNORECASE)
@@ -346,6 +354,7 @@ def parse_function(inp):
 
     return Function(name=func_name, params=params)
 
+# helper function that parses return pseudocode
 def parse_return(inp):
     words = inp.split(" ")
 
@@ -359,7 +368,8 @@ def parse_return(inp):
 
     return Return(args=retval)
 
-def parse_call(inp):
+# helper function that parses function calls correctly
+def parse_call(inp, current):
     words = re.split("\s+", inp)
 
     indices = [-1] * 2
@@ -395,10 +405,11 @@ def parse_call(inp):
         temp = inp[parameter_index:].replace(",", "").split(" ")
         parameters = [word for word in temp[1:] if word != "and"]
 
-    retval = "{}({})\n".format(function_name, ", ".join(parameters))
+    retval = " " * 4 * (current.level + 1) + "{}({})\n".format(function_name, ", ".join(parameters))
 
     return Generic(args=retval)
 
+# helper function that correctly parses while loops (very similar to if statements)
 def parse_while(inp):
     inp = re.sub('while', '', inp, 1, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
@@ -422,20 +433,28 @@ def parse_while(inp):
 
     return WhileLoop(condition=' '.join(conditions).rstrip())
 
+# function that undos the last argument
 def undo(current):
+    # if the current thing has no arguments
     if len(current.get_args()) == 0:
+        # if its not the root object
         if current.get_parent() is not None:
+            # if its an else if object or else object
             if isinstance(current, Elif) or isinstance(current, Else):
+                # go up a level and remove the last two arguments (end object and else if object)
                 current = current.get_parent()
                 current.remove_arg()
                 current.remove_arg()
 
+                # go down a level to the last child
                 current = current.get_args()[-1]
             else:
+                # go up a level and remove the child
                 current = current.get_parent()
                 current.remove_arg()
 
     else:
+        # check for a Generic instance
         if isinstance(current.get_args()[-1], Generic):
             if current.get_args()[-1].args[0] == "":
                 current.remove_arg()
@@ -450,16 +469,28 @@ def undo(current):
 
     return current
 
+def parse_comment(inp, current):
+    words = inp.split(" ")
+    command = words[0].lower()
+    length = len(command)
+
+    return Generic(" " * 4 * (current.level + 1) + "#{}\n".format(inp[length:]))
+
+# the crown jewel
 def parse_input(inp, current):
+    # if the length of the input is 0, the user wants a new line inserted
     if len(inp) == 0:
         current.add_arg(Generic(" " * 4 * (current.level + 1) + "\n"))
         return current
 
+    # get rid of leading and trailing whitespace and split the input into words
     inp = inp.strip()
     words = inp.split(" ")
 
+    # assume that the command is the first word
     command = words[0].lower()
 
+    # tree of all the commands and their related objects
     if command[:5] == "print":
         current.add_arg(parse_print(inp))
     elif command == "if":
@@ -481,18 +512,33 @@ def parse_input(inp, current):
                 current.add_arg(Generic(""))
                 current.add_arg(Else())
                 current = current.get_args()[-1]
+            elif len(current.get_args()) >= 2 and (isinstance(current.get_args()[-2], Elif) or isinstance(current.get_args()[-2], If)):
+                current.add_arg(Else())
+                current = current.get_args()[-1]
             else:
                 raise Exception
-        elif words[1].lower() == "if" and (isinstance(current, If) or isinstance(current, Elif)):
-            current = current.get_parent()
-            current.add_arg(Generic(""))
-            current.add_arg(parse_elif(inp))
-            current = current.get_args()[-1]
-        elif words[1] != "if" and (isinstance(current, If) or isinstance(current, Elif)):
-            current = current.get_parent()
-            current.add_arg(Generic(""))
-            current.add_arg(parse_else(inp))
-            current = current.get_args()[-1]
+        elif words[1].lower() == "if":
+            if isinstance(current, If) or isinstance(current, Elif):
+                current = current.get_parent()
+                current.add_arg(Generic(""))
+                current.add_arg(parse_elif(inp))
+                current = current.get_args()[-1]
+            elif len(current.get_args()) >= 2 and (isinstance(current.get_args()[-2], Elif) or isinstance(current.get_args()[-2], If)):
+                current.add_arg(parse_elif(inp))
+                current = current.get_args()[-1]
+            else:
+                raise Exception
+        elif words[1] != "if":
+            if isinstance(current, If) or isinstance(current, Elif):
+                current = current.get_parent()
+                current.add_arg(Generic(""))
+                current.add_arg(parse_else(inp))
+                current = current.get_args()[-1]
+            elif len(current.get_args()) >= 2 and (isinstance(current.get_args()[-2], Elif) or isinstance(current.get_args()[-2], If)):
+                current.add_arg(parse_else(inp))
+                current = current.get_args()[-1]
+            else:
+                raise Exception
         else:
             raise Exception
     elif command == "do" or command == "for" or command == "iterate":
@@ -529,7 +575,10 @@ def parse_input(inp, current):
             current = current.get_args()[-1]
 
     elif command == "call":
-        current.add_arg(parse_call(inp))
+        current.add_arg(parse_call(inp, current))
+
+    elif command == "comment" or command == "//" or command == "#":
+        current.add_arg(parse_comment(inp, current))
 
     else:
         if len(words) > 1 and words[1] == "=":
@@ -540,7 +589,7 @@ def parse_input(inp, current):
             raise Exception
     return current
 
-
+# just some testing
 if __name__ == "__main__":
     root = Parent()
     current = root
