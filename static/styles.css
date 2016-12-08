@@ -21,6 +21,15 @@ main .form-control {
     font-weight: bold;
 }
 
+#txtcontainer {
+    position: relative;
+}
+
+#copycat {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+}
 .CodeMirror {
     text-align: left;
     border: medium solid #696969;

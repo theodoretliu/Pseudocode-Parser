@@ -62,7 +62,7 @@ def parse():
 		is_error = True
 
 	# return a JSON for the AJAX request
-	return jsonify(isError=is_error, code=str(roots[session["id"]]))
+	return jsonify(isError=is_error, indentLevel=currents[session["id"]].level, code=str(roots[session["id"]]))
 
 @app.errorhandler(404)
 def page_not_found(e):

@@ -9,6 +9,7 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='monokai.css') }}">
   <script src="{{ url_for('static', filename='codemirror.js') }}"></script>
   <script src="{{ url_for('static', filename='python.js') }}"></script>
+  <script src="{{ url_for('static', filename='clipboard.min.js') }}"></script>
   <script>
     // set Home to be white in the navbar
     $("#nav-home").attr("class", "active");
@@ -24,11 +25,22 @@
       </div>
     </form>
     <br>
-    <textarea id="results" class="CodeMirror" rows="10" style="display:none">"Your code will appear here"</textarea>
+    <div id="txtcontainer">
+      <textarea id="results" class="CodeMirror" rows="10" style="display:none">"Your code will appear here"</textarea>
+      <button class="btn" id="copycat" data-clipboard-action="copy" data-clipboard-text="">
+        <img width="25px" height="25px" src="{{ url_for('static', filename='clippy.svg') }}" alt="Copy to clipboard">
+      </button>
+    </div>
+
+
     <br>
     <div class="alert alert-warning" id="error-message">
         <strong>Sorry!</strong> 
         We were unable to understand your input. Please try again.
+    </div>
+    <div class="alert alert-success" id="copied">
+        <strong>Success!</strong> 
+        Copied to clipboard.
     </div>
 
   </div>
@@ -36,6 +48,8 @@
   <script src="{{ url_for('static', filename='script.js') }}"></script>
   <script>
     // initializing the textarea as a CodeMirror text editor
+    var started = false;
+    var arrows = ""
     var editor = CodeMirror.fromTextArea(results, {
       lineNumbers: true,
       mode: "python",
@@ -44,6 +58,12 @@
       scrollbarStyle: "null",
     });
     $("#results").css("display:block");
+    var clipboard = new Clipboard('#copycat');
+    clipboard.on('success', function(e) {
+      $("#copied").fadeTo(3000, 500).slideUp(500, function(){
+          $("#copied").slideUp(500);
+      });
+    })
 
     $("#user-input").on("submit", function(e) {
       // prevent the post request from going through and reloading the page
@@ -74,8 +94,17 @@
           });
         } 
         else {
+          started = true;
           // set the editor's text to the code
-          editor.getDoc().setValue(result.code);
+          arrows = "";
+          for (var i = 0; i < 4 * (result.indentLevel + 1); i++) {
+            arrows += " ";
+          }
+          arrows += '█'
+          code = result.code;
+          editor.getDoc().setValue(code + arrows);
+          editor.scrollTo(Infinity, Infinity);
+          $("#copycat").attr("data-clipboard-text", code);
         }
 
         // clear the input field
@@ -84,6 +113,7 @@
         // if the text editor's text is now blank, display the original comment
         if (editor.getDoc().getValue() == "") {
           editor.getDoc().setValue("\"Your code will appear here\"");
+          editor.scrollTo(Infinity, Infinity);
         }      
       });
     });
