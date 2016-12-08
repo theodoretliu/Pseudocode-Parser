@@ -151,7 +151,7 @@ def parse_print(inp):
     new_obj = Print(args=words)
     return new_obj
 
-def parse_list(inp):
+def parse_list(inp, current):
     inp = re.sub('named|called', 'named', inp, flags=re.IGNORECASE)
     inp = re.sub('array|list', 'list', inp, flags=re.IGNORECASE)
     words = re.split('\s+', inp)
@@ -169,9 +169,9 @@ def parse_list(inp):
         except:
             pass
 
-    return Generic(args="{} = []\n".format(list_name))
+    return Generic(args="{}{} = []\n".format(' ' * 4 * (current.level + 1), list_name))
 
-def parse_list_function(inp, key):
+def parse_list_function(inp, key, current):
     if key == "append":
         inp = re.sub('to', 'to', inp, flags=re.IGNORECASE)
         inp = re.sub(',', ' ', inp)
@@ -186,9 +186,9 @@ def parse_list_function(inp, key):
             del words[to]
             words.remove(list_name)
             if len(words) == 1:
-                return Generic("{}.append({})\n".format(list_name, words[0]))
+                return Generic("{}{}.append({})\n".format(' ' * 4 * (current.level + 1), list_name, words[0]))
             elif len(words) > 1:
-                return Generic("{}.extend([{}])\n".format(list_name, ", ".join(words)))
+                return Generic("{}{}.extend([{}])\n".format(' ' * 4 * (current.level + 1), list_name, ", ".join(words)))
         except:
             raise Exception
 
@@ -206,7 +206,7 @@ def parse_list_function(inp, key):
         else:
             list_name = words[3]
             obj_to_delete = words[1]
-            return Generic("{}.remove({})".format(list_name, obj_to_delete))
+            return Generic("{}{}.remove({})".format(' ' * 4 * (current.level + 1), list_name, obj_to_delete))
 
 # if i > 1 then 
 # helper function that parses if statements correctly
@@ -559,11 +559,11 @@ def parse_input(inp, current):
     if command[:5] == "print":
         current.add_arg(parse_print(inp))
     elif command == "add" or command == "append":
-        current.add_arg(parse_list_function(inp, "append"))
+        current.add_arg(parse_list_function(inp, "append", current))
     elif command == "remove" or command == "delete":
-        current.add_arg(parse_list_function(inp, "remove"))
+        current.add_arg(parse_list_function(inp, "remove", current))
     elif command == "sort":
-        current.add_arg(parse_list_function(inp, "sort"))
+        current.add_arg(parse_list_function(inp, "sort", current))
     elif command == "if":
         current.add_arg(parse_if(inp))
         current = current.get_args()[-1]
@@ -645,7 +645,7 @@ def parse_input(inp, current):
             current.add_arg(parse_function(inp))
             current = current.get_args()[-1]
         elif re.search('list|array', inp, flags=re.IGNORECASE):
-            current.add_arg(parse_list(inp))
+            current.add_arg(parse_list(inp, current))
 
     elif command == "call":
         current.add_arg(parse_call(inp, current))
