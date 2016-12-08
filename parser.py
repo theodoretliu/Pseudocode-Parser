@@ -211,6 +211,9 @@ def parse_list_function(inp, key):
 # if i > 1 then 
 # helper function that parses if statements correctly
 def parse_if(inp):
+    modulo = re.search('is divisible( by)?(\s+[a-zA-Z0-9]+)', inp, flags=re.IGNORECASE)
+    if modulo:
+        inp = inp.replace(modulo.group(0), '% {} == 0'.format(modulo.group(2)), 1)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)( equal to)?', '!=', inp, flags=re.IGNORECASE)
@@ -664,7 +667,7 @@ if __name__ == "__main__":
     root = Parent()
     current = root
 
-    inp = "create a list named apple"
+    inp = "if i is divisible by n and i is not less than 2"
     current = parse_input(inp, current)
 
     inp2 = "append 2 to apple"
