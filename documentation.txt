@@ -51,6 +51,9 @@ To insert a blank line, the user must simply hit enter with a blank submission f
 Exit current code structure
 If the user would like to exit a code structure, e.g. if block, for block, function block, they can type "end" and submit, which will bring the user out of the current code structure. This command can also be undone.
 
+Clear everything
+Simply refresh the page with Ctrl-R or Cmd-R (Mac).
+
 SUPPORTED SYNTAX
 Print
 Ex: print "hello", variable, and x + y
