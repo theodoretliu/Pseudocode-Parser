@@ -369,7 +369,7 @@ def parse_return(inp):
     return Return(args=retval)
 
 # helper function that parses function calls correctly
-def parse_call(inp):
+def parse_call(inp, current):
     words = re.split("\s+", inp)
 
     indices = [-1] * 2
@@ -405,7 +405,7 @@ def parse_call(inp):
         temp = inp[parameter_index:].replace(",", "").split(" ")
         parameters = [word for word in temp[1:] if word != "and"]
 
-    retval = "{}({})\n".format(function_name, ", ".join(parameters))
+    retval = " " * 4 * (current.level + 1) + "{}({})\n".format(function_name, ", ".join(parameters))
 
     return Generic(args=retval)
 
@@ -468,6 +468,13 @@ def undo(current):
             current.remove_arg()
 
     return current
+
+def parse_comment(inp, current):
+    words = inp.split(" ")
+    command = words[0].lower()
+    length = len(command)
+
+    return Generic(" " * 4 * (current.level + 1) + "#{}\n".format(inp[length:]))
 
 # the crown jewel
 def parse_input(inp, current):
@@ -553,7 +560,10 @@ def parse_input(inp, current):
             current = current.get_args()[-1]
 
     elif command == "call":
-        current.add_arg(parse_call(inp))
+        current.add_arg(parse_call(inp, current))
+
+    elif command == "comment" or command == "//" or command == "#":
+        current.add_arg(parse_comment(inp, current))
 
     else:
         if len(words) > 1 and words[1] == "=":
