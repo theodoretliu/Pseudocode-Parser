@@ -28,7 +28,8 @@ main .form-control {
 #copycat {
     position: absolute;
     right: 5px;
-    bottom: 5px;
+    bottom: -61px;
+    z-index: 10000000;
 }
 .CodeMirror {
     text-align: left;
