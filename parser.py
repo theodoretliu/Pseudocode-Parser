@@ -469,6 +469,13 @@ def undo(current):
 
     return current
 
+def parse_comment(inp, current):
+    words = inp.split(" ")
+    command = words[0].lower()
+    length = len(command)
+
+    return Generic(" " * 4 * (current.level + 1) + "#{}\n".format(inp[length:]))
+
 # the crown jewel
 def parse_input(inp, current):
     # if the length of the input is 0, the user wants a new line inserted
@@ -554,6 +561,9 @@ def parse_input(inp, current):
 
     elif command == "call":
         current.add_arg(parse_call(inp))
+
+    elif command == "comment" or command == "//" or command == "#":
+        current.add_arg(parse_comment(inp, current))
 
     else:
         if len(words) > 1 and words[1] == "=":
