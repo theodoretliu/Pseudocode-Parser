@@ -30,3 +30,7 @@ main .form-control {
 body {
     background-color: #272822;
 }
+
+::-webkit-scrollbar { 
+    display: none; 
+}
