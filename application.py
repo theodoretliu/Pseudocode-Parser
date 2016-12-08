@@ -34,6 +34,10 @@ def about():
 def contact():
 	return render_template("contact.html")
 
+@app.route("/help")
+def help():
+	return render_template("help.html")
+
 @app.route("/parse")
 def parse():
 	pseudocode = request.args.get("input")

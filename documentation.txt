@@ -101,3 +101,5 @@ Ex: call function fizzbuzz with argument 2
 Ex: fizzbuzz(2)
 
 Calling a function can be done with the "call" keyword or by just typing the function name with parentheses as would actually happen in Python code. The name of the function must be specified somewhere in the line of pseudocode. The arguments are optional. The parser is not responsible for checking the existence of the function or the required arguments.
+
+Ex: for i in range 4-10

@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+
+{% block title %}
+  Contact
+{% endblock %}
+
+{% block main %}
+  <script>
+    $("#nav-help").attr("class", "active");
+  </script>
+  <div class="container">
+
+    <h3>Some useful general commands</h3>
+    <br>
+    <h4>Up/down with the arrow keys - Command history</h4>
+    Scroll through your command history by pressing up or down with the arrow keys. Command history is lost upon refreshing the page
+
+    <h4>Undo or z - Undos your last command</h4>
+    To undo your last command, simply enter "z" or "undo". If you want to undo multiple commands, you can type "zz...zz" where the number of z's is the desired number of undos. This command cannot be undone, by you can scroll through your command history if you would like to redo the command you have just undone.
+
+    <h4>Enter - Inserts a new line</h4>
+    To insert a new line, you can simply hit enter with a blank submission form.
+
+    <h4>End - Ends a loop/if/function etc</h4>
+    To exit a code block, you can simply enter 'end'. This unindents and takes you to the next line. Like all commands, this can be undone.
+
+    <br><br>
+
+    <h3>Supported Syntax</h3>
+    <br>
+    <h4>Print</h4>
+    <span class="example">Ex: print "hello world! my name's Nenya", variable123, and x + y</span>
+
+    Strings must be surrounded by double quotes. If you'd like to use double quotes in your string, you have to escape it like so \".
+    Variable names must be typed without any quotes. Any single quotes will be interpreted literally. Mathematical expressions can be typed without quotes.
+
+    <h4>Assign variables</h4>
+
+    <span class="example">Ex: set x to y</span>
+    <span class="example">Ex: x = 4</span>
+
+    The user may assign variables to each other using either the "set" keyword or by directly typing the assignment using the "=" sign. The parser will not check for valid Python syntax; for example, the parser will allow the assignment "set 9 to x", generating the code 9 = x
+
+    <h4>Conditional logic (if/elif/else)</h4>
+    <span class="example">Ex: if i is greater than 1</span>
+    <span class="example">Ex: else if i is not less than 2</span>
+    <span class="example">Ex: otherwise print "this conditional logic made no sense! >:("</span>
+
+    If and else if statements may be typed verbatim, e.g. "greater than", or with "real" comparison operators like >, <, ==, etc. The general form is "if *conditional*". The conditional may be compounded with "or" and "and" and can also include parentheses. All numbers must be typed using digits; there is currently no support for "one".
+
+    Else can go on its own line of pseudocode or followed directly by another command. "Otherwise" is also supported. The parser will check to ensure that the Else is paired with an If or Elif statement.
+
+    <h4>For Loops</h4>
+    <span class="example">Ex: for i in range 4-10</span> 
+   <span class="example">Ex: iterate from 0 to 4</span>
+
+    For loops can be begun with the "for", "do", and "iterate" keywords. The iterating variable may optionally be specified, and the upper bound must be specified, although the lower bound is optional. Currently, only for loops over ranges are allowed; "for-each" loops are not supported.
+
+    <h4>While Loops</h4>
+    <span class="example">Ex: while i is not equal to 1</span>
+
+    While loops are constructed in the same way as if statements. Incur them with the "while" keyword followed by the conditional statement. Again, the conditional may include "or" or "and" and parentheses and may be typed verbatim, e.g. "greater than", or with actual comparison operators, e.g. "<" or ">".
+
+    <h4>Functions</h4>
+    <span class="example">Ex: create a function called function with args a, b, c</span>
+    <span class="example">Ex: def function(n, b, d)</span>
+
+    Functions can be created using the keywords "create", "make", and "def(ine)". The name of the function followed by some parentheses and the functions arguments (seperated by commas) can follow immediately after.
+
+    If you wish to be more loquacious, you can have the name of the function come after the keywords "called" or "named". The parameters of the function can be specified after keywords "parameter(s)", "argument(s)", or "arg(s)". If the function does not take any parameters, the clause "with arguments ..." is optional with the second method.
+
+    <h4>Return</h4>
+    <span class="example">Ex: return "hello"</span>
+    <span class="example">Ex: return x + y</span>
+
+    Almost anything can be returned at any point. The parser will check to ensure that the return exists within a function before inputting it into the Python code. After the return, the parser will perform an end command to exit the current code block, but not necessarily the function so a function can have multiple return statements.
+
+    <h4>Call functions</h4>
+    <span class="example">Ex: call function fizzbuzz with param 2</span>
+    <span class="example">Ex: fizzbuzz(2)</span>
+
+    Calling a function can be done with the "call" keyword or by just typing the function name with parentheses as would actually happen in Python code. The name of the function must be specified somewhere in the line of pseudocode. The arguments are optional. The parser is not responsible for checking the existence of the function or the required arguments.
+
+    <br><br><br>
+  </div>
+{% endblock %}
