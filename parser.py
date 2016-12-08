@@ -260,6 +260,9 @@ def parse_if(inp):
 
 # helper function that parses else ifs
 def parse_elif(inp):
+    modulo = re.search('is divisible( by)?(\s+[a-zA-Z0-9]+)', inp, flags=re.IGNORECASE)
+    if modulo:
+        inp = inp.replace(modulo.group(0), '% {} == 0'.format(modulo.group(2)), 1)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)( equal to)?', '!=', inp, flags=re.IGNORECASE)
@@ -476,6 +479,9 @@ def parse_call(inp, current):
 
 # helper function that correctly parses while loops (very similar to if statements)
 def parse_while(inp):
+    modulo = re.search('is divisible( by)?(\s+[a-zA-Z0-9]+)', inp, flags=re.IGNORECASE)
+    if modulo:
+        inp = inp.replace(modulo.group(0), '% {} == 0'.format(modulo.group(2)), 1)
     inp = re.sub('while', '', inp, 1, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
