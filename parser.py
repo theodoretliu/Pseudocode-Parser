@@ -512,18 +512,33 @@ def parse_input(inp, current):
                 current.add_arg(Generic(""))
                 current.add_arg(Else())
                 current = current.get_args()[-1]
+            elif len(current.get_args()) >= 2 and (isinstance(current.get_args()[-2], Elif) or isinstance(current.get_args()[-2], If)):
+                current.add_arg(Else())
+                current = current.get_args()[-1]
             else:
                 raise Exception
-        elif words[1].lower() == "if" and (isinstance(current, If) or isinstance(current, Elif)):
-            current = current.get_parent()
-            current.add_arg(Generic(""))
-            current.add_arg(parse_elif(inp))
-            current = current.get_args()[-1]
-        elif words[1] != "if" and (isinstance(current, If) or isinstance(current, Elif)):
-            current = current.get_parent()
-            current.add_arg(Generic(""))
-            current.add_arg(parse_else(inp))
-            current = current.get_args()[-1]
+        elif words[1].lower() == "if":
+            if isinstance(current, If) or isinstance(current, Elif):
+                current = current.get_parent()
+                current.add_arg(Generic(""))
+                current.add_arg(parse_elif(inp))
+                current = current.get_args()[-1]
+            elif len(current.get_args()) >= 2 and (isinstance(current.get_args()[-2], Elif) or isinstance(current.get_args()[-2], If)):
+                current.add_arg(parse_elif(inp))
+                current = current.get_args()[-1]
+            else:
+                raise Exception
+        elif words[1] != "if":
+            if isinstance(current, If) or isinstance(current, Elif):
+                current = current.get_parent()
+                current.add_arg(Generic(""))
+                current.add_arg(parse_else(inp))
+                current = current.get_args()[-1]
+            elif len(current.get_args()) >= 2 and (isinstance(current.get_args()[-2], Elif) or isinstance(current.get_args()[-2], If)):
+                current.add_arg(parse_else(inp))
+                current = current.get_args()[-1]
+            else:
+                raise Exception
         else:
             raise Exception
     elif command == "do" or command == "for" or command == "iterate":
