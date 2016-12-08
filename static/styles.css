@@ -15,6 +15,12 @@ main .form-control {
     display: none;
 }
 
+.example {
+    display: block;
+    color: #D9E577;
+    font-weight: bold;
+}
+
 .CodeMirror {
     text-align: left;
     border: medium solid #696969;
