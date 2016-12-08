@@ -109,10 +109,10 @@ Almost anything can be returned at any point. The parser WILL check to ensure th
 Calling a function can be done with the "call" keyword or by just typing the function name with parentheses as would actually happen in Python code. The name of the function must be specified somewhere in the line of pseudocode. The arguments are optional. The parser is not responsible for checking the existence of the function or the required arguments.
 
 ##Lists
-###create a list called array
-###add 3 to array
-###append 2, 6, 7 and 9 to array
-###sort array
-###remove 6 from array
+###Ex: create a list called array
+###Ex: add 3 to array
+###Ex: append 2, 6, 7 and 9 to array
+###Ex: sort array
+###Ex: remove 6 from array
 
 Lists can be created and modified with a few simple commands. Create a list using "create" or "make". Add one or multiple elements to the list with "add" or "append". Sort a numeric list with "sort" followed by the list's name. Finally, you can remove an element from a list using "remove" or "delete" followed by the element that you want to remove and "from" the list's name.
