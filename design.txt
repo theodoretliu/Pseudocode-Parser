@@ -1,0 +1,22 @@
+DESIGN
+Nenya Edjah and Theodore Liu
+
+FRONTEND
+The frontend is a simple Bootstrapped website, which is NOT copied from CS50 Finance. We used the bare minimum necessary to present the backend in a respectable manner. The "About" and "Contact" page are nothing special. Just a bunch of HTML.
+
+The home page has little bit of complexity. The submission form is a form element. When the submit button or enter key is pressed, we first stop the POST request from executing and refreshing the page. Instead, we use jQuery to send an Ajax request to our backend with the route "/parse" plus the arguments that were passed into the form. The parse() method in the backend is executed and sends back a JSON result. Back on the frontend, we receive the JSON and depending on whether an error was raised, display the code in the editor or use jQuery to flash an error message to the user.
+
+We used something called CodeMirror to conver the textarea into a full code editor. A link to their website is http://codemirror.net/. We don't take any credit for that part of the project. The code editor allows for basic syntax highlighting in Python, which we couldn't handle ourselves.
+
+BACKEND
+Here is where things get interesting. Initially, our proposed plan of attack was to use machine learning and natural language processing to process the natural pseudocode that users entered and then spit out Python code as a result. We even looked into sequence to sequence translation, treating pseudocode as one foreign language and Python as the other. However, this attack quickly became too complicated and cumbersome and would not have allowed us to complete the project in a timely fashion. Instead, we opted to hard code as many inputs as we could and use regular expressions to handle various inputs.
+
+Before beginning to parse the inputs, we abstracted away some stuff using classes. We created a "Parent" class which had various methods and attributes, most important of which was the __str__() method. This method allowed us to call print(Parent()) with no problems since any instance where Parent() was treated as a string simply called the __str__ method and retrieved the return value. Additionally, the "Parent" class had self.args and self.level attributes. The self.args attribute are all the children of the object and the self.level handles the indentation level of the object.
+
+After creating the Parent class, we made If, Elif, While, Function, Generic, Print, etc. classes which all inherited from the Parent class. Some methods had to be overridden, but many of the attributes (particularly self.args and self.level) and methods were constant for all objects. This inheritance allowed us to save many lines of code and use the same methods indiscriminately among different objects.
+
+Now that we had strong abstraction with classes, we could instantiate the classes as objects when necessary. When the webpage is loaded, there is a root object created as well as a "current" pointer which points to the current location. As objects are added to the root, the current object descends with the objects, creating a tree structure. To generate the code was as simple as calling str(root) which recursively went through the arguments that were the children of the root.
+
+This is where parse_input() comes in. Everytime the user inputted pseudocode, parse_input was called with the input passed in as a parameter. Looking at the first word of the input, parse_input decided which object needed to be created. Then it called helper functions to properly parse the input and create the required object. The helper functions use a variety of regex and reductions to parse the input. Also, they are compartmentalized, so improvements can be made incrementally to each one to improve the quality of the parser. parse_input() also took in the current object and properly set the current object to the right object so that the user could continue to add input to different objects. 
+
+In the event that parse_input() cannot parse input, it throws an exception. This exception is caught by the parse method in application.py. When this happens, parse returns a JSON with boolean variable isError:true, notifying the frontend that an error has occurred. This then triggers the error message to be displayed on the frontend.
