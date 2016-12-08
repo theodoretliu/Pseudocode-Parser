@@ -472,6 +472,8 @@ def parse_input(inp, current):
         if current.get_parent() is not None:
             current = current.get_parent()
             current.add_arg(Generic(""))
+        else:
+            raise Exception
     elif command == "else" or command == "otherwise":
         if len(words) == 1:
             if isinstance(current, If) or isinstance(current, Elif):
