@@ -197,7 +197,7 @@ def parse_list_function(inp, key, current):
         if len(words) != 2:
             raise Exception
         else:
-            return Generic("{}.sort()\n".format(words[1]))
+            return Generic("{}{}.sort()\n".format(' ' * 4 * (current.level + 1), words[1]))
     elif key == "remove":
         inp = re.sub('from', 'from', inp, flags=re.IGNORECASE)
         words = re.split('\s+', inp)
@@ -206,14 +206,17 @@ def parse_list_function(inp, key, current):
         else:
             list_name = words[3]
             obj_to_delete = words[1]
-            return Generic("{}{}.remove({})".format(' ' * 4 * (current.level + 1), list_name, obj_to_delete))
+            return Generic("{}{}.remove({})\n".format(' ' * 4 * (current.level + 1), list_name, obj_to_delete))
 
 # if i > 1 then 
 # helper function that parses if statements correctly
 def parse_if(inp):
-    modulo = re.search('is divisible( by)?(\s+[a-zA-Z0-9]+)', inp, flags=re.IGNORECASE)
+    modulo = re.search('is( not)? divisible( by)?(\s+[a-zA-Z0-9]+)', inp, flags=re.IGNORECASE)
     if modulo:
-        inp = inp.replace(modulo.group(0), '% {} == 0'.format(modulo.group(2)), 1)
+        op = "="
+        if modulo.group(1) == " not":
+            op = "!"
+        inp = inp.replace(modulo.group(0), '% {} {}= 0'.format(modulo.group(3), op), 1)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)( equal to)?', '!=', inp, flags=re.IGNORECASE)
@@ -260,9 +263,12 @@ def parse_if(inp):
 
 # helper function that parses else ifs
 def parse_elif(inp):
-    modulo = re.search('is divisible( by)?(\s+[a-zA-Z0-9]+)', inp, flags=re.IGNORECASE)
+    modulo = re.search('is( not)? divisible( by)?(\s+[a-zA-Z0-9]+)', inp, flags=re.IGNORECASE)
     if modulo:
-        inp = inp.replace(modulo.group(0), '% {} == 0'.format(modulo.group(2)), 1)
+        op = "="
+        if modulo.group(1) == " not":
+            op = "!"
+        inp = inp.replace(modulo.group(0), '% {} {}= 0'.format(modulo.group(3), op), 1)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)( equal to)?', '!=', inp, flags=re.IGNORECASE)
@@ -272,7 +278,7 @@ def parse_elif(inp):
     inp = re.sub('then', 'then', inp, flags=re.IGNORECASE)
     inp = re.sub('true', 'True', inp, flags=re.IGNORECASE)
     inp = re.sub('false', 'False', inp, flags=re.IGNORECASE)
-    inp = re.sub('else', "", inp, flags=re.IGNORECASE).strip()
+    inp = re.sub('else|otherwise', "", inp, flags=re.IGNORECASE).strip()
 
     # ASSUMING THE USER WONT USE SUBSTRINGS OR SLICES
     inp = re.sub(':', 'then', inp, flags=re.IGNORECASE)
@@ -455,11 +461,11 @@ def parse_call(inp, current):
     else:
         function_name = words[keyword_index + 1]
 
-    parameter_keywords = ["parameters", "parameter", "arguments", "argument"]
+    parameter_keywords = ["parameters", "parameter", "arguments", "argument", "arg", "args", "param", "params"]
 
-    indices = [-1] * 4
+    indices = [-1] * len(parameter_keywords)
 
-    for i in range(4):
+    for i in range(len(parameter_keywords)):
         try:
             indices[i] = inp.index(parameter_keywords[i])
         except Exception:
@@ -479,9 +485,12 @@ def parse_call(inp, current):
 
 # helper function that correctly parses while loops (very similar to if statements)
 def parse_while(inp):
-    modulo = re.search('is divisible( by)?(\s+[a-zA-Z0-9]+)', inp, flags=re.IGNORECASE)
+    modulo = re.search('is( not)? divisible( by)?(\s+[a-zA-Z0-9]+)', inp, flags=re.IGNORECASE)
     if modulo:
-        inp = inp.replace(modulo.group(0), '% {} == 0'.format(modulo.group(2)), 1)
+        op = "="
+        if modulo.group(1) == " not":
+            op = "!"
+        inp = inp.replace(modulo.group(0), '% {} {}= 0'.format(modulo.group(3), op), 1)
     inp = re.sub('while', '', inp, 1, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(>|greater than)', '<=', inp, flags=re.IGNORECASE)
     inp = re.sub('(is not|isn(\')?t)(\s+)?(<|less than)', '>=', inp, flags=re.IGNORECASE)
@@ -679,7 +688,7 @@ if __name__ == "__main__":
     inp2 = "append 2 to apple"
     current = parse_input(inp2, current)
 
-    inp3 = "sort apple"
+    inp3 = "otherwise if i is not divisible by 2"
     current = parse_input(inp3, current)
 
     inp4 = "remove 3 from apple"
