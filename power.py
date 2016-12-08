@@ -117,21 +117,21 @@ class Print(Parent):
 class ForLoop(Parent):
     # constructor with lower, upper, iterating variable, args, and level
     # uses the super constructor
-    def __init__(self, lower=0, upper=10, var="i", args=None, level=0):
+    def __init__(self, lower="0", upper="10", var="i", args=None, level=0):
         super().__init__(args, level)
 
-        self.lower = lower
-        self.upper = upper
+        self.lower = str(lower)
+        self.upper = str(upper)
         self.var = var
 
     # Python code for a loop
     def __str__(self):
         if len(self.args) == 0:
             return " " * 4 * self.level + "for {} in range({}{}):\n".format(
-                self.var, (str(self.lower) + ", " if self.lower != 0 else ""), self.upper)
+                self.var, (self.lower + ", " if self.lower != "0" else ""), self.upper)
 
         ret = " " * 4 * self.level + "for {} in range({}{}):\n".format(
-            self.var, (str(self.lower) + ", " if self.lower != 0 else ""), self.upper)
+            self.var, (self.lower + ", " if self.lower != "0" else ""), self.upper)
 
         for member in self.args:
             ret += str(member)
