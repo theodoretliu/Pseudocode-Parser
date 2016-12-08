@@ -112,7 +112,7 @@ def parse_print(inp):
     inp, parens = extract_parenthesis(inp)
     inp, groups = extract_groups(inp)
 
-    inp = inp.lower().replace('and', '').replace(',', '')
+    inp = inp.lower().replace('and', '').replace(',', ' ')
     words = re.split('\s+', inp)
     del words[0]
 
@@ -150,6 +150,63 @@ def parse_print(inp):
 
     new_obj = Print(args=words)
     return new_obj
+
+def parse_list(inp):
+    inp = re.sub('named|called', 'named', inp, flags=re.IGNORECASE)
+    inp = re.sub('array|list', 'list', inp, flags=re.IGNORECASE)
+    words = re.split('\s+', inp)
+    list_name = "new_list"
+
+    del words[0]
+    if 'named' in words:
+        try:
+            list_name = words[words.index('named') + 1]
+        except:
+            pass
+    else:
+        try:
+            list_name = words[words.index('list') + 1]
+        except:
+            pass
+
+    return Generic(args="{} = []\n".format(list_name))
+
+def parse_list_function(inp, key):
+    if key == "append":
+        inp = re.sub('to', 'to', inp, flags=re.IGNORECASE)
+        inp = re.sub(',', ' ', inp)
+        inp = re.sub('and', ' ', inp, flags=re.IGNORECASE)
+        words = re.split('\s+', inp)
+        del words[0]
+        if 'to' not in words:
+            raise Exception
+        to = len(words) - list(reversed(words)).index('to') - 1
+        try:
+            list_name = words[to + 1]
+            del words[to]
+            words.remove(list_name)
+            if len(words) == 1:
+                return Generic("{}.append({})\n".format(list_name, words[0]))
+            elif len(words) > 1:
+                return Generic("{}.extend([{}])\n".format(list_name, ", ".join(words)))
+        except:
+            raise Exception
+
+    elif key == "sort":
+        words = re.split('\s+', inp)
+        if len(words) != 2:
+            raise Exception
+        else:
+            return Generic("{}.sort()\n".format(words[1]))
+    elif key == "remove":
+        inp = re.sub('from', 'from', inp, flags=re.IGNORECASE)
+        words = re.split('\s+', inp)
+        if len(words) != 4 or 'from' not in words:
+            raise Exception
+        else:
+            list_name = words[3]
+            obj_to_delete = words[1]
+            return Generic("{}.remove({})".format(list_name, obj_to_delete))
 
 # if i > 1 then 
 # helper function that parses if statements correctly
@@ -261,45 +318,34 @@ def parse_else(inp):
 # do from 1 to 5
 # helper function that parses for loops
 def parse_for_loop(inp):
-
-    # function that returns the numbers that are in a string
-    def get_numbers(words):
-        numbers = []
-        for word in words:
-            try:
-                int(word)
-                numbers.append(int(word))
-            except:
-                pass
-
-        return numbers
+    num_search = re.search('(\d+)\s*\-\s*(\d+)', inp)
+    if num_search:
+        inp = inp.replace(num_search.group(0), num_search.group(1) + " to " + num_search.group(2))
 
     inp = inp.lower().replace('(', ' ').replace(')', '')
 
     words = re.split('\s+', inp)
     del words[0]
 
-    var = "i"
-    if words[0] != "from":
-        var = words[0]
-        del words[0]
-
     start = 0
     end = 0
 
+    var = "i"
+    if words[0].lower() == 'to':
+        end = words[1]
+    elif words[0] != "from":
+        var = words[0]
+        del words[0]
+
     if "range" in words:
-        numbers = get_numbers(words)
-
-        if len(numbers) == 2:
-            start = numbers[0]
-            end = numbers[1]
-        elif len(numbers) == 1:
-            start = 0
-            end = numbers[0]
-        else:
-            pass
-
-    else:
+        try:
+            tmp = start = words[words.index('range') + 1]
+            end = words[words.index('range') + 3]
+        except:
+            if tmp:
+                end = start
+                start = 0
+    elif words[0].lower() != 'to':
         try:
             start = words[1]
             end = words[3]
@@ -338,19 +384,35 @@ def parse_set(inp, current):
 def parse_function(inp):
     inp = re.sub('named|called', 'named', inp, flags=re.IGNORECASE)
     inp = re.sub('parameter(s)?|param(s)?|argument(s)?|arg(s)?', 'arg', inp, flags=re.IGNORECASE)
-    inp = re.sub('and', '', inp, re.IGNORECASE)
-    inp = inp.replace(',', '')
-    words = re.split('\s+', inp)
+    inp = re.sub('and', '', inp, flags=re.IGNORECASE)
+    inp = inp.replace(',', ' ')
 
-    try:
-        func_name = words[words.index('named') + 1]
-    except:
-        func_name = "function"
+    func_name = "function"
+    if bool(re.search('(create|def(ine)?|make)\s+[a-zA-Z_][a-zA-Z0-9_]*\s*\(.*\)', inp, flags=re.IGNORECASE)):
+        inp = inp.replace('(', ' ').replace(')', ' ')
+        words = re.split('\s+', inp)
+        func_name = words[1]
+        params = [x for x in words[2:] if len(x) != 0]
 
-    try:
-        params = words[words.index('arg') + 1:]
-    except:
-        params = []
+    else:
+        paren_test = re.search('([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)', inp)
+        if bool(paren_test):
+            func_name = paren_test.group(1)
+            params = re.split('\s+', paren_test.group(2))
+
+        else: 
+            words = re.split('\s+', inp)
+            try:
+                func_name = words[words.index('named') + 1]
+            except:
+                try:
+                    func_name = words[words.index('function') + 1]
+                except:
+                    pass
+            try:
+                params = words[words.index('arg') + 1:]
+            except:
+                params = []
 
     return Function(name=func_name, params=params)
 
@@ -493,6 +555,12 @@ def parse_input(inp, current):
     # tree of all the commands and their related objects
     if command[:5] == "print":
         current.add_arg(parse_print(inp))
+    elif command == "add" or command == "append":
+        current.add_arg(parse_list_function(inp, "append"))
+    elif command == "remove" or command == "delete":
+        current.add_arg(parse_list_function(inp, "remove"))
+    elif command == "sort":
+        current.add_arg(parse_list_function(inp, "sort"))
     elif command == "if":
         current.add_arg(parse_if(inp))
         current = current.get_args()[-1]
@@ -570,9 +638,11 @@ def parse_input(inp, current):
         current = current.get_args()[-1]
 
     elif command == "create" or command == "make":
-        if bool(re.search(re.compile('function'), inp)):
+        if re.search('function', inp, flags=re.IGNORECASE):
             current.add_arg(parse_function(inp))
             current = current.get_args()[-1]
+        elif re.search('list|array', inp, flags=re.IGNORECASE):
+            current.add_arg(parse_list(inp))
 
     elif command == "call":
         current.add_arg(parse_call(inp, current))
@@ -594,11 +664,15 @@ if __name__ == "__main__":
     root = Parent()
     current = root
 
-    inp = "if i is less than 1"
-    current = parse_input(inp, current)
-    inp = "end"
-    current = parse_input(inp, current)
-    inp = "z"
+    inp = "create a list named apple"
     current = parse_input(inp, current)
 
+    inp2 = "append 2 to apple"
+    current = parse_input(inp2, current)
+
+    inp3 = "sort apple"
+    current = parse_input(inp3, current)
+
+    inp4 = "remove 3 from apple"
+    current = parse_input(inp4, current)
     print(root)
