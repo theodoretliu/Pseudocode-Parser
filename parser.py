@@ -9,7 +9,7 @@ def is_in_quotes(s):
 def balanced_delimiters(s):
     def inv(s):
         if s == '{': return '}'
-        elif s == '(': return '}'
+        elif s == '(': return ')'
         elif s == '[': return ']'
         elif s == '}': return '{'
         elif s == ')': return '('
@@ -236,7 +236,7 @@ def parse_if(inp):
         reverse_mode = False
 
     if reverse_mode:
-        return do_some_shit()
+        return 
 
     else:
         if 'then' in inp:
